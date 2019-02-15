@@ -1,10 +1,13 @@
 2019-02-15
 **********
-Get-SD_FunkBehÃ¶righeter - Skriver nu ut medlemmar fÃ¶r alla grupper. La till fÃ¤rg fÃ¶r tydlighet i utskriften
-Get-SD_RumBokningsbehÃ¶righet - Export sker nu till Excel istÃ¤llet fÃ¶r CSV
+Get-SD_FunkBehörigheter - Skriver nu ut medlemmar för alla grupper. La till färg för tydlighet i utskriften
+Get-SD_RumBokningsbehörighet - Export sker nu till Excel istället för CSV
+Get-SD_FunkÄgare - La till felhantering ifall maillåda inte finns
+Get-SD_AnvändareÄgareFunktionsbrevlådor - Korrigerar flödet
+Get-SD_AnvändareÄgareDistributionslistor - Ny
 
 2019-02-12
 **********
-Get-SD_DistAdresserIListan - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
-Get-SD_DistExporteraFrÃ¥nFleraTillExcel - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
-Get-SD_RumBokningsbehÃ¶righet - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
+Get-SD_DistAdresserIListan - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject
+Get-SD_DistExporteraFrånFleraTillExcel - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject
+Get-SD_RumBokningsbehörighet - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject

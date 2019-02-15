@@ -2,7 +2,7 @@
 .Synopsis
 	Hämta alla Funktionsbrevlådor en användare är markerad som ägare för
 .Parameter id
-	Användarens mailadress
+	Användarens id
 .Example
 	Get-SD_AnvändareÄgareFunktionsbrevlådor -id "ABCD"
 #>
@@ -15,14 +15,15 @@ function Get-SD_AnvändareÄgareFunktionsbrevlådor
 	)
 
 	$user = Get-ADUser -Identity $id -Properties *
-	$funkar = Get-MailBox -Filter "CustomAttribute10 -like '*$user.Emailaddress*'"
+	$address = "*"+$user.EmailAddress+"*"
+	$funkar = Get-MailBox -Filter "CustomAttribute10 -like '$address'"
 	
 	if($funkar.Count -gt 0)
 	{
-		Write-Host $MailAnvändare -NoNewline -Foreground Cyan
+		Write-Host $user.Name -NoNewline -Foreground Cyan
 		Write-host " är ägare av"$funkar.Count"funktionsbrevlådor:"
 		$funkar | ft DisplayName
 	} else {
-		Write-Host "Inga funktionsbrevlådor funna med"$Användare"som ägare"
+		Write-Host "Inga funktionsbrevlådor funna med"$user.Name"som ägare"
 	}
 }
