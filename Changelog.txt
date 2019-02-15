@@ -1,0 +1,10 @@
+2019-02-15
+**********
+Get-SD_FunkBehÃ¶righeter - Skriver nu ut medlemmar fÃ¶r alla grupper. La till fÃ¤rg fÃ¶r tydlighet i utskriften
+Get-SD_RumBokningsbehÃ¶righet - Export sker nu till Excel istÃ¤llet fÃ¶r CSV
+
+2019-02-12
+**********
+Get-SD_DistAdresserIListan - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
+Get-SD_DistExporteraFrÃ¥nFleraTillExcel - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
+Get-SD_RumBokningsbehÃ¶righet - AnvÃ¤ndarna lÃ¤ggs nu in i en tabell, rÃ¤ttade till rensning av Excel-comobject
