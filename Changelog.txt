@@ -1,3 +1,17 @@
+2019-02-27
+**********
+Rename-SD_Funk - Avslutar om inga funktionsbrevlådor hittades.
+Get-SD_RumExporteraFrånFleraTillExcel - Ny, exportera diverse olika roller för Azure-grupper relaterade till rum.
+Confirm-SD_AnvändareKontoStatus - Listar nu senast lyckade inloggning.
+Set-SD_AnvändarePasswordNeverExpires - Tar nu även emot UserPrincipalName som parameter.
+Starta Servicedesk PowerShell-Modul - Korrigerad att nu kunna starta AHK-skript oavsett användares currentfolder. Hanterar nu återanslutning till Exchange, t.ex. om anslutningen brutits p.g.a. timeout.
+Copy-SD_RumBehörighetFrånAnnatRum - Ny, kopiera rums behörigheter för bokning, från ett rum till ett annat.
+Copy-SD_KopieraSkriptTillG - La till progressbar.
+Get-SD_RumBokningsbehörighet - Ändrade hanteringen av användare för att öka träffsäkerheten. Export exkluderar nu behörighet kopplad till konto som tagits bort.
+Update-SD_DistExterna - Kontrollerar nu om distributionslistan finns i Exchange, finns den inte, gå vidare med nästa item i foreach.
+Connect-SD_ToServices - Hanterar nu återanslutning till Exchange, t.ex. om anslutningen brutits p.g.a. timeout.
+AutoLösenord.ahk - Ändrat identifieringen av inloggningsfönstret för att slippa uppdatering av skript efter varje uppdatering
+
 2019-02-15
 **********
 Get-SD_FunkBehörigheter - Skriver nu ut medlemmar för alla grupper. La till färg för tydlighet i utskriften

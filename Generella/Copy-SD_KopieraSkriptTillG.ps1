@@ -15,8 +15,10 @@ function Copy-SD_KopieraSkriptTillG
 	$central = Get-ChildItem $centralDir -File -Recurse
 	$MD5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
 	$oförändrade = 0
+	$ticker = 1
 
 	foreach ($fileA in $local) {
+		Write-Progress -Activity "Hanterar fil ($ticker / $($local.Count))" -PercentComplete (($ticker/$local.Count)*100) -CurrentOperation $file.Name
 		$fileB = $central | ? {$_.Name -eq $fileA.Name}
 		if ($fileB -eq $null)
 		{
@@ -42,6 +44,7 @@ function Copy-SD_KopieraSkriptTillG
 			}
 		}
 		$fileB = $null
+		$ticker++
 	}
 	Write-Host "$oförändrade filer oförändrade"
 }

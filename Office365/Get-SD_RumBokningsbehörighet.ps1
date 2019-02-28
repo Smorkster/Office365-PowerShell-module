@@ -14,6 +14,7 @@ function Get-SD_RumBokningsbehörighet
 	param(
 	[Parameter(Mandatory=$true)]
 		[string] $RumsNamn,
+		[switch] $NoSync,
 		[switch] $Export
 	)
 
@@ -35,26 +36,29 @@ function Get-SD_RumBokningsbehörighet
 		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId | % {$usersAzure += $_.UserPrincipalName}
 		if($usersAzure.Count -gt 0)
 		{
-			Get-MailboxFolderPermission -Identity $RumsNamnExchange | ? {$_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous"} | % {$usersExchange += $_}
+			Get-MailboxFolderPermission -Identity $RumsNamnExchange | ? {$_.User -notlike "Standard" -and $_.User -notlike "Anonymous"} | % {$usersExchange += $_.User.ADRecipient.UserPrincipalName}
 
 			$usersAzure | % {
-				if ($usersExchange -notcontains $_.DisplayName){
-					$notSynced += $_.DisplayName
+				if ($usersExchange -notcontains $_){
+					$notSynced += $_
 				}
 			}
 
 			Write-Host "Dessa har behörighet att skapa bokningar i rum " -NoNewline
 			Write-Host $RumsNamn -ForegroundColor Cyan
-			$usersExchange | sort | % {Write-Host "`t "$_.User}
-			if($notSynced.Count -gt 0)
+			$usersExchange | sort | % {Write-Host "`t "$_}
+			if (-not $NoSync)
 			{
-				Write-Host "`nDessa har inte blivit synkade med bokningsbehörighet till Exchange"
-				$notSynced | % {write $_}
-				Write-Host "`nInitierar synkronisering från Azure till Exchange" -ForegroundColor Cyan
-				Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now
+				if($notSynced.Count -gt 0)
+				{
+					Write-Host "`nDessa har inte blivit synkade med bokningsbehörighet till Exchange"
+					$notSynced | % {write $_}
+					Write-Host "`nInitierar synkronisering från Azure till Exchange" -ForegroundColor Cyan
+					Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now
+				}
 			}
 		} else {
-			Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga behörigheter har skapats."
+			Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unik behörigheter har skapats, alla kan boka rummet."
 		}
 
 		if($Export)
@@ -73,11 +77,11 @@ function Get-SD_RumBokningsbehörighet
 			$row++
 
 			foreach ($user in $usersExchange) {
-				if ( $user.User -notmatch "Standard" -and $user.User -notmatch "Anonymous")
+				if ($user -notlike "")
 				{
-					$excelTempsheet.Cells.Item($row, 1) = $user.User.DisplayName
+					$excelTempsheet.Cells.Item($row, 1) = $user
+					$row++
 				}
-				$row++
 			}
 			$excelRange = $excelTempsheet.UsedRange
 			$excelRange.EntireColumn.AutoFit() | Out-Null

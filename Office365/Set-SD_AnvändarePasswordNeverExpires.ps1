@@ -1,25 +1,29 @@
 <#
 .SYNOPSIS
-	Anger att lÃ¶senordet fÃ¶r kontot inte gÃ¥r ut
+	Anger att lösenordet för kontot inte går ut
 .PARAMETER id
-	id fÃ¶r kontot
+	id för kontot
 .DESCRIPTION
-	Skriptet anvÃ¤nds fÃ¶r att sÃ¤tta att lÃ¶senordet inte gÃ¥r ut.
+	Skriptet används för att sätta att lösenordet inte går ut.
 .Example
-	Set-SD_AnvÃ¤ndarePasswordNeverExpires -id "ABCD"
+	Set-SD_AnvändarePasswordNeverExpires -id "ABCD"
 #>
 
-function Set-SD_AnvÃ¤ndarePasswordNeverExpires
+function Set-SD_AnvändarePasswordNeverExpires
 {
 	param(
-	[Parameter(Mandatory=$true)]
-		[String] $id
+		[string] $id,
+		[string] $Mailadress
 	)
 
-	try {
-		$obj = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).EmailAddress
-	} catch {
-		Write-Host "Ingen anvÃ¤ndare hittades"
+	if ($Mailadress -eq $null)
+	{
+		try {
+			$Mailadress = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).EmailAddress
+		} catch {
+			Write-Host "Ingen användare med id $id hittades`nAvslutar"
+			return
+		}
 	}
-	Set-MsolUser -UserPrincipalName ($obj).UserPrincipalName -PasswordNeverExpires $true
+	Set-MsolUser -UserPrincipalName $Mailadress -PasswordNeverExpires $true
 }

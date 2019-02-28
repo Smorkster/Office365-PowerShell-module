@@ -1,8 +1,10 @@
 #Persistent
 #SingleInstance force
+SetTitleMatchMode, RegEx
+
 Loop
 {
-	WinWaitActive, ahk_class WindowsForms10.Window.8.app.0.34f5582_r12_ad1
+	WinWaitActive, ahk_class ^WindowsForms10
 	{
 		Sleep 2000
 		WinGetTitle, T, A

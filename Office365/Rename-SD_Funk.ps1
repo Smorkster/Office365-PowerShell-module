@@ -29,7 +29,8 @@ function Rename-SD_Funk
 	)
 
 	#region Get objects
-	$foundBoxes = Get-Mailbox $OldName"*"
+	$OldName = "*"+$OldName+"*"
+	$foundBoxes = Get-Mailbox $OldName
 	if ($foundBoxes.Count -gt 1)
 	{
 		Write-Host "`nFler än en funktionsbrevlåda hittades. Välj i listan:"
@@ -45,6 +46,9 @@ function Rename-SD_Funk
 			$answer = Read-Host "Vilken funktionsbrevlåda ska ändras?"
 		}
 		$Mailbox = $foundBoxes[$answer-1]
+	} elseif ($foundBoxes.Count -lt 1) {
+		Write-Host "Ingen funktionsbrevlåda hittades.`nAvslutar"
+		return
 	} else {
 		$Mailbox = $foundBoxes
 	}
