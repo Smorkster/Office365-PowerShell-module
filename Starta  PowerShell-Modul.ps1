@@ -57,6 +57,7 @@ if (!(Get-PSSession | Where {$_.ConfigurationName -eq "Microsoft.Exchange"}))
 		Write-Host "Ansluten till Exchange" -ForegroundColor Green
 	}
 } elseif ($reconnectExchange) {
+	Get-Module -Name "*tmp*" | Remove-Module
 	Get-PSSession | Remove-PSSession
 	$EXOSession = New-ExoPSSession
 	$WarningPreference = "SilentlyContinue"

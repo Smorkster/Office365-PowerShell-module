@@ -19,6 +19,8 @@ function Get-SD_RumIRumslista
 		$groups = Get-DistributionGroup -Filter {RecipientTypeDetails -eq "RoomList"} | ? {$_.DisplayName -like $searchstring}
 		if($groups.Count -gt 1)
 		{
+			Write-Host "Hittade ingen rumslista med namnet $Rumslista.`nAvslutar"
+		} elseif ($groups.Count -gt 1) {
 			$ticker = 1
 			Write-Host "Olika rumslistor hittades, välj vilken från listan:"
 			foreach($i in $groups)
@@ -35,8 +37,11 @@ function Get-SD_RumIRumslista
 		Write-Host "Visar för " $group
 		Get-DistributionGroupMember -Identity $group.DisplayName -ErrorAction Stop | sort DisplayName | ft DisplayName
 	} catch {
-		Write-Host "`nIngen rumslista med namn " -NoNewline
-		Write-Host $Rumslista -Foreground Red -NoNewline
-		Write-Host " hittades"
+		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException") {
+			Write-Host "Ingen rumslista med namn $Rumslista hittades"
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

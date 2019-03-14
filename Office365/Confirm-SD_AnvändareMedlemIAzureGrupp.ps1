@@ -19,34 +19,33 @@ function Confirm-SD_AnvändareMedlemIAzureGrupp
 	[Parameter(Mandatory=$true)]
 		[string] $GruppNamn
 	)
-	
-	$user = Get-AzureADUser -SearchString $MailAnvändare
-	$group = Get-AzureADGroup -SearchString $GruppNamn
-	if($user -eq $null)
-	{
-		Write-Host "Ingen användare med adress " -NoNewline
-		Write-Host $MailAnvändare -NoNewline -Foreground Cyan
-		Write-Host " hittades i AzureAD"
+
+	try {
+		$user = Get-AzureADUser -SearchString $MailAnvändare
+	} catch {
+		Write-Host "Anvädnare hittades inte i Azure.`nAvslutar"
 		return
-	} elseif ($group -eq $null) {
-		Write-Host "Ingen grupp med namn " -NoNewline
-		Write-Host $GruppNamn -NoNewline -Foreground Cyan
-		Write-Host " hittades i AzureAD"
+	}
+
+	try {
+		$group = Get-AzureADGroup -SearchString $GruppNamn
+	} catch {
+		Write-Host "Grupp $GruppNamn hittades inte i Azure.`nAvslutar"
 		return
-	} else {
-		$groups = @()
-		try {
-			$groups = $user | Get-AzureADUserMembership | ? {$_.DisplayName -like $GruppNamn}
-			Write-Host $user.DisplayName -NoNewline -Foreground Cyan
-			if ($groups)
-			{
-				Write-Host " är medlem i " -NoNewline
-			} else {
-				Write-Host " är inte medlem i " -NoNewline
-			}
-			Write-Host $GruppNamn -Foreground Cyan
-		} catch {
-			Write-Host "Ett fel uppstod"
+	}
+
+	$groups = @()
+	try {
+		$groups = $user | Get-AzureADUserMembership | ? {$_.DisplayName -like $GruppNamn}
+		Write-Host $user.DisplayName -NoNewline -Foreground Cyan
+		if ($groups)
+		{
+			Write-Host " är medlem i " -NoNewline
+		} else {
+			Write-Host " är inte medlem i " -NoNewline
 		}
+		Write-Host "'$GruppNamn'" -Foreground Cyan
+	} catch {
+		Write-Host "Ett fel uppstod"
 	}
 }

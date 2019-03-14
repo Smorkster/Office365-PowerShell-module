@@ -15,7 +15,7 @@ function Get-SD_DistÄgare
 	)
 
 	try {
-		( Get-DistributionGroup -Identity $Distributionslista -ErrorAction Stop ).ManagedBy
+		( Get-DistributionGroup -Identity $Distributionslista -ErrorAction Stop ).ManagedBy | ? {$_ -notlike "*MIG-User-1-Farm-1*"}
 	} catch {
 		Write-Host "`nIngen distributionslista med namnet " -nonewline
 		Write-Host $Distributionslista -ForegroundColor Red -nonewline

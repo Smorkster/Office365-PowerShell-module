@@ -7,7 +7,7 @@
 	Text som ska stå i autosvarsmeddelandet
 .PARAMETER Startdatum
 	Startdatum för när autosvarsmeddelande ska börja gälla
-.PARAMETER Slutdatum
+	.PARAMETER Slutdatum
 	Slutdatum för när autosvarsmeddelande ska sluta gälla
 .DESCRIPTION
 	Lägger in ett autosvarsmeddelande på avsedd användare mellan start- och slutdatum. Giltiga datum är inte krav.
@@ -34,7 +34,7 @@ function Add-SD_AnvändareAutosvar
 	try
 	{
 		Write-Verbose "Hämtar ditt adminkonto"
-		Write-Progress -Activity "Hämtar admin från AD" -PercentComplete ((2/6)*100)
+		Write-Progress -Activity "Hämtar adminkonto i Exchange" -PercentComplete ((2/6)*100)
 		$adminAccount = Get-Mailbox -Anr $adminUser
 	} catch {
 		Write-Host "Hittar inget adminkonto. Avslutar" -Foreground Red
@@ -44,8 +44,8 @@ function Add-SD_AnvändareAutosvar
 	try
 	{
 		Write-Verbose "Hämtar användarkontot"
-		Write-Progress -Activity "Hämtar admin från AD" -PercentComplete ((3/6)*100)
-		$userAccount = Get-Mailbox -Identity (Get-AdUser -Identity $id -Properties *).Emailaddress
+		Write-Progress -Activity "Hämtar användares konto i Exchange" -PercentComplete ((3/6)*100)
+		$userAccount = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).Emailaddress
 	} catch [System.Management.Automation.RemoteException]{
 		Write-Host "Inget konto för " -NoNewline
 		Write-Host $id -Foreground Cyan
@@ -55,25 +55,24 @@ function Add-SD_AnvändareAutosvar
 
 	try {
 		Write-Verbose "Skapar tillfällig behörighet till användarkontot"
-		Write-Progress -Activity "Hämtar admin från AD" -PercentComplete ((4/6)*100)
+		Write-Progress -Activity "Skapar behörighet till användares konto" -PercentComplete ((4/6)*100)
 		Add-MailboxPermission -Identity $userAccount.PrimarySmtpAddress -User $adminAccount.PrimarySmtpAddress -AccessRights FullAccess -WarningAction SilentlyContinue > $null
 	} catch {
 		Write-Host "Kunde inte lägga på full behörighet för adminkonto. Avslutar"
 		return
 	}
 	
+	Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 	if(-not $Startdatum)
 	{
 		$Startdatum = (Get-Date -UFormat "%Y-%m-%d")+" 00:00:00"
 		if(-not $Slutdatum)
 		{
 			Write-Verbose "Lägger in autosvarsmeddelande, från nu och tills det manuellt stängs av."
-			Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 			Set-MailboxAutoReplyConfiguration -Identity $userAccount.PrimarySmtpAddress -AutoReplyState Enabled -InternalMessage $Meddelande -ExternalMessage $Meddelande -Confirm:$false
 		} else {
 			$Slutdatum = $Slutdatum+" 22:59:59"
 			Write-Verbose "Lägger in autosvarsmeddelande, från nu till $Slutdatum"
-			Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 			Set-MailboxAutoReplyConfiguration -Identity $userAccount.PrimarySmtpAddress -AutoReplyState Scheduled -StartTime $Startdatum -EndTime $Slutdatum -InternalMessage $Meddelande -ExternalMessage $Meddelande -Confirm:$false
 		}
 	} else {
@@ -82,11 +81,9 @@ function Add-SD_AnvändareAutosvar
 			$Startdatum = $Startdatum+" 00:00:00"
 			$Slutdatum = $Slutdatum+" 22:59:59"
 			Write-Verbose "Lägger in autosvarsmeddelande mellan $Startdatum och $Slutdatum"
-			Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 			Set-MailboxAutoReplyConfiguration -Identity $userAccount.PrimarySmtpAddress -AutoReplyState Scheduled -InternalMessage $Meddelande -ExternalMessage $Meddelande -StartTime $Startdatum -EndTime $Slutdatum -Confirm:$false
 		} else {
 			Write-Verbose "Lägger in autosvarsmeddelande, från $Startdatum och tills det aktivt stängs av."
-			Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 			Set-MailboxAutoReplyConfiguration -Identity $userAccount.PrimarySmtpAddress -AutoReplyState Enabled -InternalMessage $Meddelande -ExternalMessage $Meddelande -StartTime $Startdatum -Confirm:$false
 		}
 	}

@@ -18,7 +18,7 @@ function Confirm-SD_AnvändaremsExchMailboxGuid
 	)
 
 	try {
-		$value = (Get-ADUser -Identity $id -Properties *).msExchMailboxGuid
+		$value = (Get-ADUser -Identity $id -Properties * -ErrorAction Stop).msExchMailboxGuid
 		if($value -eq $null)
 		{
 			Write-Host "msExchMailboxGuid är tom"
@@ -26,6 +26,6 @@ function Confirm-SD_AnvändaremsExchMailboxGuid
 			Write-Host "msExchMailboxGuid är inte tom"
 		}
 	} catch {
-		Write-Host "Användare finns inte"
+		Write-Host "Ingen användare för $id hittades i AD"
 	}
 }

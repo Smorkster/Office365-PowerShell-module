@@ -18,25 +18,25 @@ function Get-SD_RumBokningsbehörighet
 		[switch] $Export
 	)
 
-	$RumsNamnExchange = $RumsNamn.Trim()+":\Kalender"
-	$RumsNamnAzure = "Res-" + $RumsNamn.Trim() + "-Book"
-	$AzureGroup = Get-AzureADGroup -SearchString $RumsNamnAzure
-	$usersExchange = @()
-	$usersAzure = @()
-	$notSynced = @()
-
-	if ($AzureGroup -eq $null)
-	{
-		Write-Host "Inget rum med namn " -NoNewline
-		Write-Host $RumsNamn -ForegroundColor Cyan -NoNewline
-		Write-Host " hittades.`nAvslutar"
-		return
-	}
 	try {
-		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId | % {$usersAzure += $_.UserPrincipalName}
+		$RumsNamnExchange = $RumsNamn.Trim()+":\Kalender"
+		$RumsNamnAzure = "Res-" + $RumsNamn.Trim() + "-Book"
+		$AzureGroup = Get-AzureADGroup -SearchString $RumsNamnAzure
+		$usersExchange = @()
+		$usersAzure = @()
+		$notSynced = @()
+
+		if ($AzureGroup -eq $null)
+		{
+			Write-Host "Inget rum med namn " -NoNewline
+			Write-Host $RumsNamn -ForegroundColor Cyan -NoNewline
+			Write-Host " hittades.`nAvslutar"
+			return
+		}
+		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -ErrorAction Stop | % {$usersAzure += $_.UserPrincipalName}
 		if($usersAzure.Count -gt 0)
 		{
-			Get-MailboxFolderPermission -Identity $RumsNamnExchange | ? {$_.User -notlike "Standard" -and $_.User -notlike "Anonymous"} | % {$usersExchange += $_.User.ADRecipient.UserPrincipalName}
+			Get-MailboxFolderPermission -Identity $RumsNamnExchange -ErrorAction Stop | ? {$_.User -notlike "Standard" -and $_.User -notlike "Anonymous"} | % {$usersExchange += $_.User.ADRecipient.UserPrincipalName}
 
 			$usersAzure | % {
 				if ($usersExchange -notcontains $_){
@@ -54,7 +54,12 @@ function Get-SD_RumBokningsbehörighet
 					Write-Host "`nDessa har inte blivit synkade med bokningsbehörighet till Exchange"
 					$notSynced | % {write $_}
 					Write-Host "`nInitierar synkronisering från Azure till Exchange" -ForegroundColor Cyan
-					Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now
+					Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now -ErrorAction Stop
+					foreach ($ns in $notSynced) {
+						Add-MailboxFolderPermission -Identity $RumsNamnExchange -AccessRights LimitedDetails -User $ns -Confirm:$false -ErrorAction Stop | Out-Null
+					}
+					$bp = (Get-CalendarProcessing -Identity $RumsNamn -ErrorAction Stop).BookInPolicy += $notSynced
+					Set-CalendarProcessing -Identity $RumsNamn -BookInPolicy $bp -ErrorAction Stop
 				}
 			}
 		} else {
@@ -102,5 +107,14 @@ function Get-SD_RumBokningsbehörighet
 		}
 	} catch [Microsoft.Open.AzureAD16.Client.ApiException] {
 		Write-Host "Problem att hitta Azure-gruppen för behörigheter. Kontrollera att den finns och är korrekt kopplad."
+	} catch {
+		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Get-MailboxFolderPermission") {
+			Write-Host "Rummets maillåda gick inte att hitta"
+		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Set-CalendarProcessing") {
+			Write-Host "Hittade inte rummets kalender för tilläggning av behörighet"
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

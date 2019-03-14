@@ -14,15 +14,23 @@ function Remove-SD_AnvändareIkonfoto
 		[string] $id
 	)
 	try {
-		$user = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).EmailAddress -ErrorAction Stop
+		$user = Get-ADUser -Identity $id -Properties * -ErrorAction Stop
+		$mailbox = Get-Mailbox -Identity $user.EmailAddress -ErrorAction Stop
+		Remove-UserPhoto -Identity $id -Confirm -ErrorAction Stop
 	} catch {
-		Write-Host "Ingen användare hittades"
-	}
-	if($user)
-	{
-		Remove-UserPhoto -Identity $id -Confirm
-	} else {
-		Write-Host "Inget konto hittat för " -NoNewline
-		Write-Host $id
+		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
+		{
+			Write-Host "Hittade ingen användare med id $id i AD"
+		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException") {
+			if ($_.CategoryInfo.Activity -eq "Get-Mailbox" -xor $_.CategoryInfo.Activity -eq "Remove-UserPhoto")
+			{
+				Write-Host "Inget mailkonto hittades för $($user.EmailAddress)"
+			} else {
+				Write-Host "Problem att nå mailkonto"
+			}
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

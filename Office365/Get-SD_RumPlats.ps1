@@ -15,16 +15,20 @@ function Get-SD_RumPlats
 	)
 
 	try {
-		$a = (Get-Mailbox -Identity $Rumsnamn).Office
-		if($a -eq $null -or $a -eq "")
+		$rum = (Get-Mailbox -Identity $Rumsnamn -ErrorAction Stop).Office
+		if($rum -eq $null -or $rum -eq "")
 		{
 			Write-Host "Ingen plats är specificerad"
 		} else {
-			Write-Host "`n"$a"`n"
+			Write-Host "$Rumsnamn"$rum"`n"
 		}
 	} catch {
-		Write-Host "`nRum " -nonewline
-		Write-Host $Rumsnamn -Foreground Red -NoNewline
-		Write-Host " finns inte"
+		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException")
+		{
+			Write-Host "Inget rum med namn $Rumsnamn hittas i Exchange" -Foreground Red
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

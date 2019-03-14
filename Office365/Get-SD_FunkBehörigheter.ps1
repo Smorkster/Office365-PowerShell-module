@@ -14,27 +14,38 @@ function Get-SD_FunkBehörigheter
 		[string] $Funktionsbrevlåda
 	)
 
-	Write-Verbose "Hämtar användare med full behörighet i Exchange"
-	$fullExchange = Get-MailboxPermission -Identity $Funktionsbrevlåda.Trim() | ? {$_.AccessRights -like "*FullAccess*" -and $_.User -match "@test.com"}
+	if ($Funktionsbrevlåda -match "@test.com")
+	{
+		$displayname = (Get-Mailbox -Identity $Funktionsbrevlåda).DisplayName
+		$AzureNameFull = "MB-"+$displayname+"-Full"
+		$AzureNameRead = "MB-"+$displayname+"-Read"
+		$ExchangeName = $displayname
+	} else {
+		$AzureNameFull = "MB-"+$Funktionsbrevlåda.Trim()+"-Full"
+		$AzureNameRead = "MB-"+$Funktionsbrevlåda.Trim()+"-Read"
+		$ExchangeName = $Funktionsbrevlåda
+	}
 
 	Write-Verbose "Hämtar användare med full behörighet i Azure"
-	$AzureName = "MB-"+$Funktionsbrevlåda.Trim()+"-Full"
-	$fullAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureName).Objectid
-
-	Write-Verbose "Hämtar användare med läsbehörighet i Exchange"
-	$readExchange = Get-MailboxPermission $Funktionsbrevlåda.Trim() | ? {$_.AccessRights -like "ReadPermission" -and $_.User -match "@test.com"}
+	$fullAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameFull).Objectid
 
 	Write-Verbose "Hämtar användare med läsbehörighet i Azure `n"
-	$AzureName = "MB-"+$Funktionsbrevlåda.Trim()+"-Read"
-	$readAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureName).Objectid
+	$readAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameRead).Objectid
+
+	Write-Verbose "Hämtar användare med behörighet i Exchange"
+	$ExchangeMembers = Get-MailboxPermission -Identity $ExchangeName | ? {$_.User -match "@test.com"}
+
+	$fullExchange = $ExchangeMembers | ? {$_.AccessRights -like "*FullAccess*"}
+	$readExchange = $ExchangeMembers | ? {$_.AccessRights -like "*ReadPermission*"}
+
 	
 	if ( $fullAzure.Count -eq 0 )
 	{
 		Write-Host "Inga användare har full behörighet i Azure" -Foreground Cyan
 	} else {
 		Write-Host "Dessa har full behörighet i Azure" -Foreground Cyan
+		$fullAzure | sort UserPrincipalName | select -ExpandProperty UserPrincipalName
 	}
-	$fullAzure | select -ExpandProperty UserPrincipalName
 
 	Write "`n"
 
@@ -44,7 +55,7 @@ function Get-SD_FunkBehörigheter
 	} else {
 		Write-Host "Dessa har full behörighet i Exchange" -Foreground Cyan
 	}
-	$fullExchange | select -ExpandProperty User
+	$fullExchange | sort User | select -ExpandProperty User
 
 	Write "`n"
 
@@ -54,7 +65,7 @@ function Get-SD_FunkBehörigheter
 	} else {
 		Write-Host "Dessa har läsbehörighet i Azure" -Foreground Cyan
 	}
-	$readAzure | select -ExpandProperty UserPrincipalName
+	$readAzure | sort UserPrincipalName | select -ExpandProperty UserPrincipalName
 
 	Write "`n"
 
@@ -64,5 +75,5 @@ function Get-SD_FunkBehörigheter
 	} else {
 		Write-Host "Dessa har läsbehörighet i Exchange" -Foreground Cyan
 	}
-	$readExchange | select -ExpandProperty User
+	$readExchange | sort User | select -ExpandProperty User
 }

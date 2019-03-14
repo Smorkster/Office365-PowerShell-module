@@ -22,21 +22,27 @@ function Add-SD_ResursTillGrupp
 		[string] $GruppNamn
 	)
 
-	$rooms = Get-Mailbox -Identity "$ResursNamn*" -Filter {ResourceType -eq "Room"}
-	$equipments = Get-Mailbox -Identity "$ResursNamn*" -Filter {ResourceType -eq "Equipment"}
-	$groupObjectID = Get-MsolGroup -SearchString $GruppNamn
+	try {
+		$rooms = Get-Mailbox -Identity "$ResursNamn*" -Filter {ResourceType -eq "Room"}
+		$equipments = Get-Mailbox -Identity "$ResursNamn*" -Filter {ResourceType -eq "Equipment"}
+		$groupObjectID = Get-MsolGroup -SearchString $GruppNamn
 
-	try
-	{
-		$rooms | % {Get-MsolGroup -SearchString "res-$_-admins"} | % Add-MsolGroupMember -GroupObjectId $groupObjectID.ID -GroupMemberType Group -GroupMemberObjectId $_.ObjectID
+		if($groupObjectID -eq $null)
+		{
+			Write-Host "Ingen grupp med namn $GruppNamn hittades.`nAvslutar"
+		} else {
+			$rooms | % {Get-MsolGroup -SearchString "res-$_-admins" -ErrorAction Stop} | % { Add-MsolGroupMember -GroupObjectId $groupObjectID.ID -GroupMemberType Group -GroupMemberObjectId $_.ObjectID -ErrorAction Stop }
+			$equipments | % {Get-MsolGroup -SearchString "res-$_-admins" -ErrorAction Stop} | % { Add-MsolGroupMember -GroupObjectId $groupObjectID.ID -GroupMemberType Group -GroupMemberObjectId $_.ObjectID -ErrorAction Stop }
+		}
 	} catch {
-		Write-Host "Rum finns redan i gruppen"
-	}
-
-	try
-	{
-		$equipments | % {Get-MsolGroup -SearchString "res-$_-admins"} | % Add-MsolGroupMember -GroupObjectId $groupObjectID.ID -GroupMemberType Group -GroupMemberObjectId $_.ObjectID
-	} catch {
-		Write-Host "Resurs finns redan i gruppen"
+		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException")
+		{
+			Write-Host "Rum $ResursNamn hittades inte"
+		} elseif ($_.CategoryInfo.Reason -eq "MicrosoftOnlineException") {
+			Write-Host "Grupp hittades inte i Azure"
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

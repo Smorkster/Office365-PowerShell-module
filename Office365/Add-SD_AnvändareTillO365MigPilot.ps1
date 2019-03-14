@@ -16,19 +16,26 @@ function Add-SD_AnvändareTillO365MigPilot
 		[string] $id
 	)
 
-	$group = Get-AzureADGroup -SearchString "O365-MigPilots"
-	$User = Get-ADUser -Identity $id -Properties *
-	$x = @()
+	try {
+		$group = Get-AzureADGroup -SearchString "O365-MigPilots" -ErrorAction Stop
+		$User = Get-ADUser -Identity $id -Properties * -ErrorAction Stop
 
-	if($User.EmailAddress -eq $null)
-	{
-		Write-Host "Ingen mailadress skapad för $id.`nAvslutar"
-	} else {
-		Write-Verbose "Lägger till användare"
-		try {
-			Add-DistributionGroupMember -Identity $group.ObjectId -Member $User.EmailAddress -BypassSecurityGroupManagerCheck -ErrorAction SilentlyContinue
-		} catch {
-			Write-Host "Fel vid försök att lägga till medlemskap`nTroligen finns $User.Name redan i gruppen"
+		if($User.EmailAddress -eq $null)
+		{
+			Write-Host "Ingen mailadress skapad för $id.`nAvslutar"
+		} else {
+			Write-Verbose "Lägger till användare"
+			Add-DistributionGroupMember -Identity $group.ObjectId -Member $User.EmailAddress -BypassSecurityGroupManagerCheck -ErrorAction Stop
+		}
+	} catch {
+		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
+		{
+			Write-Host "Användare hittades inte i AD"
+		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException") {
+			Write-Host "Användare hittades inte i Azure"
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
 		}
 	}
 }

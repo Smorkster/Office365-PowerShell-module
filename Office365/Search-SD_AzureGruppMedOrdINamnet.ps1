@@ -1,31 +1,31 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Sök på Office365-grupp genom sökningsord
-.PARAMETER GruppNamn
+.Description
+	Söker igenom alla Msol-grupper efter de grupper som har sökordet i DisplayName
+.Parameter SökOrd
 	Ord som kan finnas med i gruppnamnet
 .Example
-	Search-SD_AzureGruppMedOrdINamnet -GruppNamn "Group1"
+	Search-SD_AzureGruppMedOrdINamnet -SökOrd "Group1"
 #>
 
 function Search-SD_AzureGruppMedOrdINamnet
 {
 	param(
 	[Parameter(Mandatory=$true)]
-		[string] $GruppNamn
+		[string] $SökOrd
 	)
 
 	try {
-		$a = Get-MsolGroup -All | ? {$_.DisplayName -match $GruppNamn} | sort DisplayName
-		if($a -eq $null)
+		$groups = Get-MsolGroup -All -ErrorAction Stop | ? {$_.DisplayName -match $SökOrd}
+		if($groups -eq $null)
 		{
-			Write-Host "`nIngen grupp med namn " -nonewline
-			Write-Host $GruppNamn -ForegroundColor Red -nonewline
-			Write-Host " finns i Exchange"
+			Write-Host "Ingen grupp hittades som har $SökOrd i DisplayName"
 		} else {
-			$a
+			$groups | sort DisplayName
 		}
 	} catch {
-		Write-Host "Fel vid sökning på namn"
-		Write-Host $GruppNamn -ForegroundColor Red
+		Write-Host "Fel uppstod vid körningen:"
+		$_
 	}
 }

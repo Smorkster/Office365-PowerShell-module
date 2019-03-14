@@ -16,12 +16,15 @@ function Get-SD_DistMedlemmar
 		[string] $Distributionslista
 	)
 
-	$list = @()
 	try {
 		Get-DistributionGroupMember -Identity $Distributionslista.Trim() -ErrorAction Stop | sort PrimarySMTPAddress | ft PrimarySMTPAddress, DisplayName
 	} catch {
-		Write-Host "`nDistributionslistan " -NoNewline
-		Write-Host $Distributionslista -Foreground Red -NoNewline
-		Write-Host " finns inte"
+		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException")
+		{
+			Write-Host "Ingen distributionslista med namn $Distributionslista hittades."
+		} else {
+			Write-Host "Fel uppstod i kÃ¶rningen:"
+			$_
+		}
 	}
 }

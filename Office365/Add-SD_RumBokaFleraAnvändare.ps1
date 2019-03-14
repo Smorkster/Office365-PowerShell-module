@@ -11,7 +11,7 @@
 	Lägger in varje användare i varje rum
 .Example
 	Add-SD_RumBokaFleraAnvändare -Remove
-	Tar bort varje användare frän varje rum
+	Tar bort varje användare från varje rum
 #>
 
 function Add-SD_RumBokaFleraAnvändare
@@ -44,45 +44,72 @@ function Add-SD_RumBokaFleraAnvändare
 	$numberOfEntries = $numGroups * $numUsers
 	$Excel.Workbooks.Close()
 	$Excel.Quit()
+	$WarningPreference = "SilentlyContinue"
 
 	$InputUsers | foreach {
-		if ($User = (Get-MsolUser -UserPrincipalName $_.Trim() -ErrorAction SilentlyContinue).ObjectID)
+		if ($User = Get-Mailbox -Identity $_.Trim() -ErrorAction SilentlyContinue)
 		{
-			Write-Host "("$tickerUser"/"$numUsers" )`tUser - " -Foreground Yellow -NoNewline
+			Write-Host "($($tickerUser)/$($numUsers)) User - " -Foreground Yellow -NoNewline
 			Write-Host $_ -Foreground Cyan
 
 			$InputGroups | foreach {
-				$name = "res-"+$_.Trim()+"-book"
-				if ($Target = (Get-MsolGroup -MaxResults 100000 -SearchString $name -ErrorAction SilentlyContinue).ObjectID){
+				$room = $_.Trim()
+				$name = "Res-"+$room+"-Book"
+				$eRoom = $room+":\Kalender"
+				$policy = (Get-CalendarProcessing -Identity $room).BookInPolicy
+				$MsolUser = Get-MsolUser -UserPrincipalName $User.PrimarySMTPAddress
+				if ($Target = (Get-MsolGroup -MaxResults 100000 -SearchString $name -ErrorAction Stop).ObjectID){
 
 					if ($Remove)
 					{
 					#region Remove user
-						Write-Host "("$tickerTotal"/"$numberOfEntries") `tRemoving from..." -Foreground Yellow -NoNewline
-						Write-Host $_ -Foreground Cyan -NoNewline
-						try { Remove-MsolGroupMember -GroupObjectID $Target -GroupMemberType 'User' -GroupMemberObjectId $User -ErrorAction Stop } catch {}
-						if($Error[0] -like "*The member you are trying to delete is not in this group*")
-						{
-							Write-Host " is not a member." -Foreground Red
-						} else {
-							Write-Host "... Done" -Foreground Green
+						Write-Host "($($tickerTotal)/$($numberOfEntries)) `tRemoving from..." -Foreground Yellow -NoNewline
+						Write-Host $room -Foreground Cyan -NoNewline
+						try {
+							Remove-MsolGroupMember -GroupObjectID $Target -GroupMemberType 'User' -GroupMemberObjectId $MsolUser.ObjectId -ErrorAction SilentlyContinue
+							Write-Host " ." -NoNewline -Foreground Green
+							if($policy -contains $User.LegacyExchangeDN)
+							{
+								$policy = $policy | ? {$_ -ne $User.LegacyExchangeDN}
+								Set-CalendarProcessing -Identity $room -AllBookInPolicy:$false -BookInPolicy $policy -ErrorAction SilentlyContinue
+								Write-Host "." -NoNewline -Foreground Green
+							}
+							Remove-MailboxFolderPermission -Identity $eRoom -User $User.PrimarySMTPAddress | Out-Null
+							Write-Host "." -NoNewline -Foreground Green
+						} catch {
+							if($_ -like "*Åtkomst nekad.*") {
+								Write-Host "Anslutning till Exchange har tappats. Återanslut.`nAvslutar skriptet"
+								exit
+							}
 						}
 					#endregion
 					} else {
 					#region Add user
-						Write-Host "("$tickerTotal"/"$numberOfEntries") `tAdding to " -Foreground Yellow -NoNewline
+						Write-Host "($($tickerTotal)/$($numberOfEntries)) `tAdding to " -Foreground Yellow -NoNewline
 						Write-Host $_ -Foreground Cyan -NoNewline
-						try { Add-MsolGroupMember -GroupObjectID $Target -GroupMemberType 'User' -GroupMemberObjectId $User -ErrorAction Stop	} catch {}
-						if($Error[0] -like "*is already a member of this group*")
-						{
-							Write-Host " is already a member." -Foreground Red
-						} else {
-							Write-Host "... Done" -Foreground Green
+						try {
+							Add-MsolGroupMember -GroupObjectID $Target -GroupMemberType 'User' -GroupMemberObjectId $MsolUser.ObjectId -ErrorAction SilentlyContinue
+							Write-Host "." -NoNewline -Foreground Green
+							if($policy -notcontains $User.LegacyExchangeDN)
+							{
+								$policy += $User.LegacyExchangeDN
+								Set-CalendarProcessing -Identity $room -AllBookInPolicy:$false -BookInPolicy $policy -ErrorAction SilentlyContinue
+								Write-Host "." -NoNewline -Foreground Green
+							}
+							Add-MailboxFolderPermission -Identity $eRoom -AccessRights LimitedDetails -Confirm:$false -User $User.PrimarySMTPAddress -ErrorAction SilentlyContinue | Out-Null
+							Write-Host "." -NoNewline -Foreground Green
+						} catch {
+							if ($_ -like "*Åtkomst nekad.*") {
+								Write-Host "Anslutning till Exchange har tappats. Återanslut.`nAvslutar skriptet"
+								exit
+							}
 						}
 					#endregion
 					}
 
 					Set-MsolGroup -ObjectID $Target -Description "Now"
+					Write-Host "." -NoNewline -Foreground Green
+					Write-Host " Done" -Foreground Green
 				} else {
 					Write-Host "Group" $_ "not found..." -Foreground Red
 				}
@@ -90,15 +117,21 @@ function Add-SD_RumBokaFleraAnvändare
 			}
 		} else {
 			$Failed += $_
-			Write-Host "User $_ not found in Azure. Skipping." -Foreground Red
+			Write-Host "User $_ not found. Skipping." -Foreground Red
 		}
 		$tickerUser = $tickerUser + 1
-		Write-Host "Next user`n..."
+		Write-Host "`n"
 		try {$Error[0] = ""} catch {}
 	}
 	if($Failed.Count -gt 0)
 	{
-		Write-Host "Dessa kunde inte läggas till i någon grupp:"
+		Write-Host "Dessa kunde inte " -NoNewline
+		if($Remove)
+		{
+			Write-Host "tas bort"
+		} else {
+			Write-Host "läggas till i någon grupp:"
+		}
 		$Failed
 	}
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($temp2) | Out-Null

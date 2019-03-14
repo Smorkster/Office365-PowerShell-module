@@ -16,14 +16,24 @@ function Set-SD_AnvändarePasswordNeverExpires
 		[string] $Mailadress
 	)
 
-	if ($Mailadress -eq $null)
-	{
-		try {
-			$Mailadress = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).EmailAddress
-		} catch {
-			Write-Host "Ingen användare med id $id hittades`nAvslutar"
-			return
+	try {
+		if ($Mailadress -eq $null)
+		{
+			$adUser = Get-ADUser -Identity $id -Properties * -ErrorAction Stop
+			$Mailadress = Get-Mailbox -Identity $adUser.EmailAddress -ErrorAction Stop
+		}
+		Set-MsolUser -UserPrincipalName $Mailadress -PasswordNeverExpires $true -ErrorAction Stop
+	} catch {
+		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
+		{
+			Write-Host "Hittades inte i AD"
+		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException") {
+			Write-Host "Användare hittades inte i Exchange"
+		} elseif ($_.FullyQualifiedErrorId -like "*UserNotFoundException*") {
+			Write-Host "Användare hittades inte i Azure"
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
 		}
 	}
-	Set-MsolUser -UserPrincipalName $Mailadress -PasswordNeverExpires $true
 }

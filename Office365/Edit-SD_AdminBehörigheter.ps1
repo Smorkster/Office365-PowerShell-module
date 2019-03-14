@@ -42,7 +42,10 @@ function Edit-SD_AdminBehörigheter
 		$konton = Get-Content $file
 		if ($konton -ne "")
 		{
-			$konton | % {Remove-MailboxPermission -Identity $_ -User $adminAccount.UserPrincipalName -AccessRights FullAccess -Confirm:$false; Write-Host "Behörighet till $_ borttagen"}
+			$konton | % {
+				Remove-MailboxPermission -Identity $_ -User $adminAccount.UserPrincipalName -AccessRights FullAccess -Confirm:$false
+				Write-Host "Behörighet till $_ borttagen"
+			}
 			"" > $file
 		} else {
 			Write-Host "Filen är tom, inga behörigheter att ta bort" -Foreground Cyan

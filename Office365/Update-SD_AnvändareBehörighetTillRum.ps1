@@ -19,28 +19,37 @@ function Update-SD_AnvändareBehörighetTillRum
 	)
 
 	Write-Verbose "Hämtar mailbox i Exchange"
-	$user = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).EmailAddress
+	try {
+		Write-Verbose "Hämtar AD-objekt för användaren"
+		$adUser = Get-ADUser -Identity $id -Properties *
+	} catch {
+		Write-Host "Användare $id hittades inte i AD"
+		return
+	}
+
+	try {
+		Write-Verbose "Hämtar mailbox för användare"
+		$user = Get-Mailbox -Identity $adUser.EmailAddress
+	} catch {
+		Write-Host "Ingen maillåda hittades för $($adUser.Name)"
+		return
+	}
+
 	try {
 		Write-Verbose "Hämtar mailbox för rummet"
-		$room = Get-Mailbox	-Identity $Rum
-		if($room -eq $null)
-		{
-			Write-Host "Hittade inte rummet"
-			return
-		} else {
-			Write-Verbose "Kontrollerar om det redan finns behörighet för användaren i rummet"
-			$roomMember = Get-MailboxFolderPermission -Identity $rum":\Kalender" | ? {$_.User -match $user.DisplayName}
-			if($roomMember)
-			{
-				Write-Verbose "Behörighet fanns redan, tar bort behörigheten"
-				Remove-MailboxFolderPermission -Identity $rum":\Kalender" -User $user.PrimarySmtpAddress -Confirm:$false
-			}
-			Write-Verbose "Lägger på behörigheten för användaren till rummet"
-			Add-MailboxFolderPermission -Identity $rum":\Kalender" -User $user.PrimarySmtpAddress -AccessRights LimitedDetails > $null
-		}
+		$room = Get-Mailbox	-Identity $Rum -ErrorAction Stop
 	} catch {
-		Write-Host "Ingen funktionsbrevlåda med namnet " -nonewline
-		Write-Host $Funktionsbrevlåda -ForegroundColor Magenta -nonewline
-		Write-Host " funnen"
+		Write-Host "Inget rum hittades med namn $Rum"
+		return
 	}
+
+	Write-Verbose "Kontrollerar om det redan finns behörighet för användaren i rummet"
+	$roomMember = Get-MailboxFolderPermission -Identity $($room.PrimarySmtpAddress)":\Kalender" | ? {$_.User -match $user.DisplayName}
+	if($roomMember)
+	{
+		Write-Verbose "Behörighet fanns redan, tar bort behörigheten"
+		Remove-MailboxFolderPermission -Identity $($room.PrimarySmtpAddress)":\Kalender" -User $user.PrimarySmtpAddress -Confirm:$false
+	}
+	Write-Verbose "Lägger på behörigheten för användaren till rummet"
+	Add-MailboxFolderPermission -Identity $($room.PrimarySmtpAddress)":\Kalender" -User $user.PrimarySmtpAddress -AccessRights LimitedDetails > $null
 }

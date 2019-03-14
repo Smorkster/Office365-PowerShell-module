@@ -14,13 +14,13 @@ function Get-SD_FunkAdmins
 		[string] $Funktionsbrevlåda
 	)
 
-	$funk = Get-Mailbox -Identity $Funktionsbrevlåda -ErrorAction SilentlyContinue
+	$funk = Get-Mailbox -Identity $Funktionsbrevlåda.Trim() -ErrorAction SilentlyContinue
 	if($funk -eq $null)
 	{
 		Write-Host "Funktionsbrevlåda " -NoNewline
 		Write-Host $Funktionsbrevlåda -ForegroundColor Magenta -NoNewline
 		Write-Host " finns inte"
 	} else {
-		Get-MailboxPermission -Identity $Funktionsbrevlåda -ErrorAction Stop | ? {($_.AccessRights -match "FullAccess") -and ($_.User -match "@test.com")} | ft User
+		Get-MailboxPermission -Identity $funk.Identity -ErrorAction Stop | ? {($_.AccessRights -match "FullAccess") -and ($_.User -match "@test.com")} | ft User
 	}
 }

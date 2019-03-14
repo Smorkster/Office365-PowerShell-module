@@ -23,6 +23,7 @@ function Connect-SD_ToServices
 		$EXOSession = New-ExoPSSession
 		Import-PSSession $EXOSession -AllowClobber > $null
 	} elseif ($reconnectExchange) {
+		Get-Module -Name "*tmp*" | Remove-Module
 		Get-PSSession | Remove-PSSession
 		$EXOSession = New-ExoPSSession
 		Import-PSSession $EXOSession -AllowClobber > $null

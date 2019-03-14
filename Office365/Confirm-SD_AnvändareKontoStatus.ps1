@@ -132,40 +132,44 @@ function Confirm-SD_AnvändareKontoStatus
 		Search-UnifiedAuditLog -StartDate ([DateTime]::Today.AddDays(-10)) -EndDate ([DateTime]::Now) -UserIds $user.EmailAddress -Operations "UserLoggedIn" -AsJob | Out-Null
 		Write-Host "Senast lyckade inloggning: " -NoNewline
 		$successfullLoggins = Get-Job | Receive-Job
-		$lastlogon = ($successfullLoggins[0].AuditData | ConvertFrom-Json).CreationTime
+		if ($successfullLoggins.Count -gt 0)
+		{
+			$lastlogon = ($successfullLoggins[0].AuditData | ConvertFrom-Json).CreationTime
 
-		foreach($logon in $successfullLoggins) {
-			if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
-			{
-				$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
+			foreach($logon in $successfullLoggins) {
+				if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
+				{
+					$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
+				}
 			}
-		}
 
-		$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
-		if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1)) {
-			if (($lastlogon.Hour + 1) -lt 10)
-			{
-				$hour = "0"+($lastlogon.Hour + 1)
-			} else {$hour = $lastlogon.Hour}
-			if ($lastlogon.Minute -lt 10)
-			{
-				$minute = "0"+($lastlogon + 1)
-			} else {$minute = $lastlogon.Minute}
-			Write-Host "Igår"$hour":"$minute -Foreground Green
+			$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
+			if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1)) {
+				if (($lastlogon.Hour + 1) -lt 10)
+				{
+					$hour = "0"+($lastlogon.Hour + 1)
+				} else {$hour = $lastlogon.Hour}
+				if ($lastlogon.Minute -lt 10)
+				{
+					$minute = "0"+($lastlogon + 1)
+				} else {$minute = $lastlogon.Minute}
+				Write-Host "Igår"$hour":"$minute -Foreground Green
+			}
+			elseif ($lastlogon.Date -eq [datetime]::Today) {
+				if (($lastlogon.Hour + 1) -lt 10)
+				{
+					$hour = "0"+($lastlogon.Hour + 1)
+				} else {$hour = $lastlogon.Hour}
+				if ($lastlogon.Minute -lt 10)
+				{
+					$minute = "0"+($lastlogon.Minute + 1)
+				} else {$minute = $lastlogon.Minute}
+				Write-Host "Idag"$hour":"$minute -Foreground Green
+			}
+			else {Write-Host $lastlogon.DateTime -Foreground Green}
+		} else {
+			Write-Host "Inga inloggningar registrerade"
 		}
-		elseif ($lastlogon.Date -eq [datetime]::Today) {
-			if (($lastlogon.Hour + 1) -lt 10)
-			{
-				$hour = "0"+($lastlogon.Hour + 1)
-			} else {$hour = $lastlogon.Hour}
-			if ($lastlogon.Minute -lt 10)
-			{
-				$minute = "0"+($lastlogon + 1)
-			} else {$minute = $lastlogon.Minute}
-			Write-Host "Idag"$hour":"$minute -Foreground Green
-		}
-		else {Write-Host $lastlogon.DateTime -Foreground Green}
-
 	} catch [Microsoft.Online.Administration.Automation.MicrosoftOnlineException] {
 		Write-Host "O365-konto har inte skapats. Avbryter resten av testerna." -Foreground Red
 		$fail = $true

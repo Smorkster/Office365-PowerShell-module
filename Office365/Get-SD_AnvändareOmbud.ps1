@@ -16,25 +16,38 @@ function Get-SD_AnvändareOmbud
 	
 	try
 	{
-		$owner = (Get-ADUser -Identity $id_Ägare -Properties *).EmailAddress
+		$owner = Get-ADUser -Identity $id_Ägare -Properties *
+
+		Write-Host "Behörigheter till Inkorgen:" -Foreground Green
+		Get-MailboxFolderPermission -Identity $owner.EmailAddress -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
+
+		Write-Host "`nBehörigheter till Kalender:" -Foreground Green
 		try
 		{
-			Write-Host "Behörigheter till Inkorgen:" -Foreground Green
-			Get-MailboxFolderPermission -Identity $owner -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
-			try
-			{
-			Write-Host "`nBehörigheter till Kalender:" -Foreground Green
 			Get-MailboxFolderPermission -Identity $owner":\Kalender" -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
-			} catch {
-				if ( $Error[0].CategoryInfo -like "*ManagementObjectNotFoundException*" )
-				{
-					Write-Host "Du saknar behörighet för att se mappar/kalender`nLägg till dig själv som administratör i Exchange först."
-				}
-			}
 		} catch {
-			Write-Host "Mailkonto inte funnet" -Foreground Red
+			if ( $_.CategoryInfo -like "*ManagementObjectNotFoundException*" )
+			{
+				try
+				{
+					Get-MailboxFolderPermission -Identity $owner":\Calendar" -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
+				} catch {
+					Write-Host "Kunde inte hitta kalendern"
+				}
+			} else {
+				Write-Host "Kunde inte hitta kalendern"
+			}
 		}
-	} catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
-		Write-Host "Person med id "$id_Ägare" inte funnen`nAvslutar" -Foreground Red
+	} catch {
+		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
+		{
+			Write-Host "Person med id "$id_Ägare" inte funnen i AD.`nAvslutar" -Foreground Red
+			return
+		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Get-MailboxFolderPermission") {
+			Write-Host "Mailkonto för $($owner.Name) inte funnet" -Foreground Red
+		} else {
+			Write-Host "Fel uppstod i körningen:"
+			$_
+		}
 	}
 }

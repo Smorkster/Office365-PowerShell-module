@@ -1,4 +1,23 @@
-2019-02-27
+2019-03-14
+**********
+Gått igenom de flesta skript för omdefiniering av handeringen av exceptions, för enklare kodstruktur
+
+Add-SD_AnvändareAutosvar - Rättat text i Write-Progress
+Get-SD_AnvändareOmbud - La till att kontrollera efter engelsk kalender om svensk inte fanns på kontot
+Add-SD_RumBokaFleraAnvändare - Lägger nu på behörighet av de konton som inte har synkats från Azure
+Confirm-SD_AnvändareKontoStatus - Korrigerat hur rapport för minuter skapas för nuvarande datum
+Connect-SD_ToServices - Tar nu bort gamla, inlästa, temporära, Exchange-moduler
+Get-SD_DistÄgare - La till filtrering för att enbart visa användare
+Get-SD_FunkAdmins - Ändrat till att hämtning av behörigheter görs på den hittade maillådan, istället för namn angivet av användaren
+Get-SD_FunkBehörigheter - Strukturerade om hämtningen av behörigheter / Kan nu ta mailadress till funktionsbrevlåda som parameter
+Get-SD_RumBokningsbehörighet - Lägger nu på behörighet av de konton som inte har synkats från Azure / Inte längre output när behörighet på rums maillåda skapas
+Starta Servicedesk PowerShell-Modul - Tar nu bort gamla, inlästa, temporära, Exchange-moduler
+Sync-SD_FunkAzureTillExchange - Ny. Skapa Exchange-behörigheter till funktionsbrevlåda för alla medlemmar i respektive Azure-grupp
+Sync-SD_RumAzureTillExchange - Uppdaterad help / Rätta variabelnamn / Lagt till Exception-hantering
+Update-SD_DistErsättAllaMedlemmar - Ny. Ta bort alla medlemmar i distributionslistan och lägg till de som ska ersätta
+Update-SD_DistExterna - La till hantering av interna mailadresser / Bytt namn till Update-SD_Distributionslista / La till hantering av okänd action
+
+2019-02-28
 **********
 Rename-SD_Funk - Avslutar om inga funktionsbrevlådor hittades.
 Get-SD_RumExporteraFrånFleraTillExcel - Ny, exportera diverse olika roller för Azure-grupper relaterade till rum.
