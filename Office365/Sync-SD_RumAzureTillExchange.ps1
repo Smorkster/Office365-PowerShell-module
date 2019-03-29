@@ -31,13 +31,13 @@ function Sync-SD_RumAzureTillExchange
 		try {
 			Add-MailboxFolderPermission -Identity $eRum -AccessRights LimitedDetails -Confirm:$false -User $user.PrimarySMTPAddress -ErrorAction Stop
 		} catch {
-			if ($_.CategoryInfo.Reason -notlike "*UserAlreadyExist*")
+			if ($_.CategoryInfo.Reason -like "*UserAlreadyExist*")
 			{
+				Write-Host "Behörighet finns redan"
+			} else {
 				Write-Host "Problem vid skapande av behörighet i kalendern:"
 				Write-Host $_.CategoryInfo.Reason
-			} else {
-				Write-Host "Fel uppstod i körningen:"
-				$_
+				Write-Host $_.Exception
 			}
 		}
 		$ticker++

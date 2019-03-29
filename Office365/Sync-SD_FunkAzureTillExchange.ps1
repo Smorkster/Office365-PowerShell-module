@@ -30,7 +30,7 @@ function Sync-SD_FunkAzureTillExchange
 	}
 
 	#region Sync Full
-	$members = Get-AzureADGroupMember -ObjectId $azureGroupFull.ObjectId
+	$members = Get-AzureADGroupMember -ObjectId $azureGroupFull.ObjectId -All $true
 	foreach($member in $members)
 	{
 		Write-Progress -Activity "Lägger till full behörighet för $($member.UserPrincipalName)" -PercentComplete (($ticker / $members.Count)*100)

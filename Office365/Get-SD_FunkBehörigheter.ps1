@@ -27,10 +27,10 @@ function Get-SD_FunkBehörigheter
 	}
 
 	Write-Verbose "Hämtar användare med full behörighet i Azure"
-	$fullAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameFull).Objectid
+	$fullAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameFull).Objectid -All $true 
 
 	Write-Verbose "Hämtar användare med läsbehörighet i Azure `n"
-	$readAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameRead).Objectid
+	$readAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $AzureNameRead).Objectid -All $true 
 
 	Write-Verbose "Hämtar användare med behörighet i Exchange"
 	$ExchangeMembers = Get-MailboxPermission -Identity $ExchangeName | ? {$_.User -match "@test.com"}

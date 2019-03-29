@@ -1,3 +1,13 @@
+2019-03-15
+**********
+Confirm-SD_AnvändareMedlemIAzureGrupp - Hämtar nu alla medlemmar i Azure-grupp
+Confirm-SD_GemAzureSynkatTillExchange - Hämtar nu alla medlemmar i Azure-grupp
+Edit-SD_AdminBehörigheter - Hanterar nu varningar vid borttag av behörighet
+Get-SD_FunkBehörigheter - Hämtar nu alla medlemmar i Azure-grupp
+Get-SD_RumBokningsbehörighet - Ändrad parameter att nu ange att synkronisering ska utföras / La till progressbar / La till hantering av borttagen adress / Tar nu fram samtliga medlemmar i Azure-grupp / Skriver nu ut antal som inte har blivit synkroniserade / Listning av icke synkade sker nu enbart om synkning inte ska utföras
+Get-SD_RumExporteraFrånFleraTillExcel - Hämtar nu alla medlemmar i Azure-grupp
+Sync-SD_RumAzureTillExchange - Ändrade vilka exceptions som ska hanteras / Hämtar nu alla medlemmar i Azure-grupp
+
 2019-03-14
 **********
 Gått igenom de flesta skript för omdefiniering av handeringen av exceptions, för enklare kodstruktur

@@ -47,7 +47,7 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 	foreach ($roomAzureGroup in $azureGroups)  
 	{
 		#Get members of this group
-		$azureGroupMembers = Get-AzureADGroupMember -ObjectID $roomAzureGroup.ObjectID -All:$true | ? {$_.DisplayName -notlike "*-Book*"}
+		$azureGroupMembers = Get-AzureADGroupMember -ObjectID $roomAzureGroup.ObjectID -All $true | ? {$_.DisplayName -notlike "*-Book*"}
 		Write-Host $count "- $($roomAzureGroup.DisplayName) ($($azureGroupMembers.Count) medlemmar)"
 
 		#region Add Members

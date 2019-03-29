@@ -1,9 +1,11 @@
 <#
 .SYNOPSIS
 	Hämtar en lista över vilka som kan skapa bokningar i ett rum
-.PARAMETER RumsNamn
+.Parameter RumsNamn
 	Namn på rummet som efterfrågas
-.PARAMETER Export
+.Parameter Sync
+	Anger att gruppmedlemarna ska synkroniseras till Exchange
+.Parameter Export
 	Ange om användarnas mailadresser ska exporteras till en fil
 .Example
 	Get-SD_RumBokningsbehörighet -RumsNamn "RumA"
@@ -14,7 +16,7 @@ function Get-SD_RumBokningsbehörighet
 	param(
 	[Parameter(Mandatory=$true)]
 		[string] $RumsNamn,
-		[switch] $NoSync,
+		[switch] $Sync,
 		[switch] $Export
 	)
 
@@ -33,7 +35,7 @@ function Get-SD_RumBokningsbehörighet
 			Write-Host " hittades.`nAvslutar"
 			return
 		}
-		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -ErrorAction Stop | % {$usersAzure += $_.UserPrincipalName}
+		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -All $true -ErrorAction Stop | % {$usersAzure += $_.UserPrincipalName}
 		if($usersAzure.Count -gt 0)
 		{
 			Get-MailboxFolderPermission -Identity $RumsNamnExchange -ErrorAction Stop | ? {$_.User -notlike "Standard" -and $_.User -notlike "Anonymous"} | % {$usersExchange += $_.User.ADRecipient.UserPrincipalName}
@@ -47,23 +49,51 @@ function Get-SD_RumBokningsbehörighet
 			Write-Host "Dessa har behörighet att skapa bokningar i rum " -NoNewline
 			Write-Host $RumsNamn -ForegroundColor Cyan
 			$usersExchange | sort | % {Write-Host "`t "$_}
-			if (-not $NoSync)
+			if($notSynced.Count -gt 0)
 			{
-				if($notSynced.Count -gt 0)
+				if ($Sync)
 				{
-					Write-Host "`nDessa har inte blivit synkade med bokningsbehörighet till Exchange"
-					$notSynced | % {write $_}
+					Write-Host "`n$($notSynced.Count) har inte blivit synkade med bokningsbehörighet till Exchange"
 					Write-Host "`nInitierar synkronisering från Azure till Exchange" -ForegroundColor Cyan
 					Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now -ErrorAction Stop
+					$ticker = 1
 					foreach ($ns in $notSynced) {
-						Add-MailboxFolderPermission -Identity $RumsNamnExchange -AccessRights LimitedDetails -User $ns -Confirm:$false -ErrorAction Stop | Out-Null
+						Write-Progress -Activity "Lägger på behörighet $ticker av $($notSynced.Count)" -PercentComplete (($ticker/$notSynced.Count)*100)
+						try {
+							Add-MailboxFolderPermission -Identity $RumsNamnExchange -AccessRights LimitedDetails -User $ns -Confirm:$false -ErrorAction Stop | Out-Null
+						} catch {
+							if ($_.CategoryInfo.Reason -eq "InvalidExternalUserIdException") {
+								$address = ($_.Exception -split [char]0x22)[1]
+								Write-Host "Adress $address finns inte. Personen har troligen slutat."
+							} elseif ($_.CategoryInfo.Reason -eq "ACLTooBigException") {
+								Write-Host "`nFör många medlemmar i Azure-gruppen. Kan inte synkronisera fler till Exchange.`n`nAvslutar därför hanteringen."
+								return
+							} else {
+								$_
+							}
+						}
+						$ticker++
 					}
 					$bp = (Get-CalendarProcessing -Identity $RumsNamn -ErrorAction Stop).BookInPolicy += $notSynced
-					Set-CalendarProcessing -Identity $RumsNamn -BookInPolicy $bp -ErrorAction Stop
+					try {
+						Set-CalendarProcessing -Identity $RumsNamn -BookInPolicy $bp -ErrorAction Stop
+					} catch {
+						if ($_.CategoryInfo.Reason -eq "CmdletProxyException")
+						{
+							Write-Host "En eller flera personer hade redan behörighet i kalendern"
+						} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Set-CalendarProcessing") {
+							Write-Host "Hittade inte rummets kalender för tilläggning av behörighet"
+						}
+					}
+				} else {
+					Write-Host "`nDessa $($notSynced.Count) har inte blivit synkade med bokningsbehörighet till Exchange"
+					$notSynced = $notSynced | sort
+					$notSynced
+
 				}
 			}
 		} else {
-			Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unik behörigheter har skapats, alla kan boka rummet."
+			Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unika behörigheter har skapats, alla kan boka rummet."
 		}
 
 		if($Export)
@@ -110,8 +140,6 @@ function Get-SD_RumBokningsbehörighet
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Get-MailboxFolderPermission") {
 			Write-Host "Rummets maillåda gick inte att hitta"
-		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Set-CalendarProcessing") {
-			Write-Host "Hittade inte rummets kalender för tilläggning av behörighet"
 		} else {
 			Write-Host "Fel uppstod i körningen:"
 			$_

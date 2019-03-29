@@ -36,7 +36,7 @@ function Confirm-SD_AnvändareMedlemIAzureGrupp
 
 	$groups = @()
 	try {
-		$groups = $user | Get-AzureADUserMembership | ? {$_.DisplayName -like $GruppNamn}
+		$groups = $user | Get-AzureADUserMembership -All $true | ? {$_.DisplayName -like $GruppNamn}
 		Write-Host $user.DisplayName -NoNewline -Foreground Cyan
 		if ($groups)
 		{

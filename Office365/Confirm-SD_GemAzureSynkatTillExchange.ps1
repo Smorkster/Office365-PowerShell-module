@@ -30,7 +30,7 @@ function Confirm-SD_GemAzureSynkatTillExchange
 		$azureGrupper = @()
 
 		Get-MailboxPermission -Identity $exchangeFunk | % {$exchangeGrupper += $_.DisplayName}
-		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureFunk).ObjectId | % {$azureGrupper += $_.DisplayName}
+		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureFunk).ObjectId -All $true | % {$azureGrupper += $_.DisplayName}
 		$azureGrupper | % {if($exchangeGrupper -notcontains $_.tostring()) {$notSynced += $_}}
 		if($notSynced.Count -gt 0)
 		{
@@ -41,7 +41,7 @@ function Confirm-SD_GemAzureSynkatTillExchange
 
 		$azureFunk = "mb-"+$Namn+"-read"
 		$azureGrupper = @()
-		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureFunk).ObjectId | % {$azureGrupper += $_.DisplayName}
+		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureFunk).ObjectId -All $true | % {$azureGrupper += $_.DisplayName}
 		$azureGrupper | % {if($exchangeGrupper -notcontains $_.tostring()) {$notSynced += $_}}
 		if($notSynced.Count -gt 0)
 		{
@@ -57,7 +57,7 @@ function Confirm-SD_GemAzureSynkatTillExchange
 		$exchangeGrupper = @()
 		$azureGrupper = @()
 		Get-DistributionGroupMember -Identity $exchangeDist | % {$exchangeGrupper += $_.DisplayName}
-		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureDist).ObjectId | % {$azureGrupper += $_.DisplayName}
+		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureDist).ObjectId -All $true | % {$azureGrupper += $_.DisplayName}
 	} elseif($Typ -eq "Rum" -or $Typ -eq "Resurs")
 	{
 		$exchangeRum = $Namn+":\Kalender"
@@ -65,7 +65,7 @@ function Confirm-SD_GemAzureSynkatTillExchange
 		$exchangeGrupper = @()
 		$azureGrupper = @()
 		Get-MailboxFolderPermission -Identity $exchangeRum | ? {$_.user -notlike "Anon*" -and $_.user -notlike "Stand*"} | % {$exchangeGrupper += $_.User.DisplayName}
-		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureRum).ObjectId | % {$azureGrupper += $_.DisplayName}
+		Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureRum).ObjectId -All $true | % {$azureGrupper += $_.DisplayName}
 	} else
 	{
 		Write-Host "Felaktig typ vald"
