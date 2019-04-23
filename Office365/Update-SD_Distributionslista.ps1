@@ -20,7 +20,7 @@ function Update-SD_Distributionslista
 {
 	#Variables
 	Write-Host "Öppnar Excel-fil. Editera adresser som ska läggas till/tas bort. Stäng sedan Excel för att fortsätta." -Foreground Cyan
-	$fil = "G:\\\Epost & Skype\Powershell\FilerTillSkripten\ExternalContacts_Batch.csv"
+	$fil = "G:\\\Epost & Skype\Powershell\FilerTillSkripten\UpdateDistributionlist.csv"
 	$Excel = New-Object -ComObject Excel.Application
 	$Excel.Visible = $true
 	$temp = $Excel.Workbooks.Open($fil)
@@ -28,7 +28,7 @@ function Update-SD_Distributionslista
 	Read-Host "Fortsätt genom att trycka Enter..."
 
 	$data = Import-Csv -Delimiter ";" -Encoding UTF7 -Path $fil
-	$numberOfEntries = $data.Count
+	$numberOfEntries = ($data | measure).Count
 
 	$data | foreach {
 		Write-Host "Uppdatering $ticker av $numberOfEntries"
@@ -71,7 +71,8 @@ function Update-SD_Distributionslista
 				if( $_.CategoryInfo.Reason -eq "MemberAlreadyExistsException") {
 					Write-Host $emailToAdd "finns redan i grupp" $azureGroup.DisplayName "`n"-Foreground Red
 				} else {
-					Write-Host "Klar`n" -Foreground Green
+					#Write-Host "Klar`n" -Foreground Green
+					$_
 				}
 			}
 		#endregion Add user

@@ -39,6 +39,7 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 	#Get all Azure-groups
 	$sökSträng = "Res-"+$Kund+" "+$RumResurs
 	$filter = "*-"+$GruppTyp
+	Write-Verbose $sökSträng
 	$azureGroups = Get-AzureADGroup -SearchString $sökSträng -All:$true | ? {$_.DisplayName -like $filter}
 	$count = 1
 	Write-Host "Hittade"$azureGroups.Count"Azure-grupper"

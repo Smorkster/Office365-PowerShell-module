@@ -34,6 +34,9 @@ function Sync-SD_RumAzureTillExchange
 			if ($_.CategoryInfo.Reason -like "*UserAlreadyExist*")
 			{
 				Write-Host "Behörighet finns redan"
+			} elseif ($_.CategoryInfo.Reason -eq "ACLTooBigException") {
+				Write-Host "För många medlemmar i Azure-gruppen. Kan inte synkronisera $($user.DisplayName) till Exchange.`nAvslutar."
+				return
 			} else {
 				Write-Host "Problem vid skapande av behörighet i kalendern:"
 				Write-Host $_.CategoryInfo.Reason

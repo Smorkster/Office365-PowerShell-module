@@ -22,7 +22,7 @@ function Search-SD_AzureGruppMedOrdINamnet
 		{
 			Write-Host "Ingen grupp hittades som har $SökOrd i DisplayName"
 		} else {
-			$groups | sort DisplayName
+			$groups | sort DisplayName | select DisplayName, Description
 		}
 	} catch {
 		Write-Host "Fel uppstod vid körningen:"

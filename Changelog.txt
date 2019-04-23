@@ -1,4 +1,15 @@
-2019-03-15
+2019-04-23
+**********
+Add-SD_RumBokaEnAnvändare - Sätter nu attribut att enbart behöriga kan boka rummet
+Confirm-SD_AnvändareKontoStatus - Lagt till kontroll av aktiv inloggning med O365-konto
+Get-SD_DistÄgare - Skriver nu även ut administratörer
+Get-SD_RumBokningsbehörighet - Flyttat exporten innanför if-sats för kontroll att Azure-gruppen inte är tom / La till Verbose-text för förtydligande för användaren
+Search-SD_AnvändareMessageTrace - Ny. Gör MessageTrace för angiven mottagare och/eller avsändare. Finns möjlighet att exportera resultatet till Excel
+Search-SD_AzureGruppMedOrdINamnet - Ändrat utskrift för enklare visualisering
+Sync-SD_RumAzureTillExchange - La till hantering av maxgräns i Exchange behörigheter
+Update-SD_Distributionslista - Korrigerade beräkningen av antal uppdateringar
+
+2019-03-29
 **********
 Confirm-SD_AnvändareMedlemIAzureGrupp - Hämtar nu alla medlemmar i Azure-grupp
 Confirm-SD_GemAzureSynkatTillExchange - Hämtar nu alla medlemmar i Azure-grupp

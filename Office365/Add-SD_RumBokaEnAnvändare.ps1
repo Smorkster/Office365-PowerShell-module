@@ -41,7 +41,7 @@ function Add-SD_RumBokaEnAnvändare
 		$UserAccount = Get-Mailbox -Identity $User
 		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject).BookInPolicy += $User
 
-		Set-CalendarProcessing -Identity $RoomObject -BookInPolicy $BookPolicy
+		Set-CalendarProcessing -Identity $RoomObject -BookInPolicy $BookPolicy -AllBookInPolicy:$false
 	} catch [System.Management.Automation.RemoteException] {
 		Write-Host "Rum $Rum hittades inte i Exchange.`nAvslutar"
 	}

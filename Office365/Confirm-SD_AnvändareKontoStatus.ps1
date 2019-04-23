@@ -129,6 +129,13 @@ function Confirm-SD_AnvändareKontoStatus
 			Write-Host "Mailbox skapad i Exchange" -Foreground Green
 		}
 
+		if ($userAzure.BlockCredential)
+		{
+			Write-Host "Inloggning med O365-konto inaktiverat" -Foreground Red
+			$fail = $true
+		} else {
+			Write-Host "Inloggning med O365-konto aktiverat" -Foreground Green
+		}
 		Search-UnifiedAuditLog -StartDate ([DateTime]::Today.AddDays(-10)) -EndDate ([DateTime]::Now) -UserIds $user.EmailAddress -Operations "UserLoggedIn" -AsJob | Out-Null
 		Write-Host "Senast lyckade inloggning: " -NoNewline
 		$successfullLoggins = Get-Job | Receive-Job
