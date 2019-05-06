@@ -13,6 +13,7 @@
 	Döper om en funktionsbrevlåda och byter mailadress. Namn och adress måste följa namnstandarden. Ingen kontroll av detta görs dock.
 .Example
 	Rename-SD_Funk -OldName "OldName" -NewName "NewName" -OldEmail "oldname@test.com" -NewEmail "newname@test.com"
+	Döper om funktionsbrevlådan OldName och ger den det nya namnet NewName samt byter mailadress från oldname@test.com till newname@test.com
 #>
 
 function Rename-SD_Funk

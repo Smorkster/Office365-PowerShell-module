@@ -8,6 +8,7 @@
 	Namn eller mailadress för rummet
 .Example
 	Set-SD_RumBokningsDetaljerSynliga -Rum "RumA"
+	Anger att bokningsdetaljerna för rum RumA ska vara synliga för alla användare
 #>
 function Set-SD_RumBokningsDetaljerSynliga
 {

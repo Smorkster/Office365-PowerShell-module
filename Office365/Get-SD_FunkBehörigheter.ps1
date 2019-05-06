@@ -1,10 +1,13 @@
 <#
 .Synopsis
 	Listar vilka användare som har behörighet till funktionsbrevlåda
+.Description
+	Hämtar vilka personer som har blivit kopplade med behörighet till en funktionsbrevlåda. Sedan listas personerna per behörighets typ (full- eller läsbehörighet) samt vilka som existerar i Azure respektive Exchange.
 .Parameter Funktionsbrevlåda
 	Mailadress eller namn på funktionsbrevlådan
 .Example
 	Get-SD_FunkBehörigheter -Funktionsbrevlåda "test@test.com"
+	Hämtar personer som fått behörighet till funktionsbrevlåda test@test.com
 #>
 
 function Get-SD_FunkBehörigheter

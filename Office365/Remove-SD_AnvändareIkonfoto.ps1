@@ -5,6 +5,7 @@
 	id för användaren
 .Example
 	Remove-SD_AnvändareIkonfoto -id "ABCD"
+	Tar bort profilbild i Office365 för användare ABCD
 #>
 
 function Remove-SD_AnvändareIkonfoto

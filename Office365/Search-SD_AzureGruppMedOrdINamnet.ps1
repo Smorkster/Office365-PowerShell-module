@@ -7,6 +7,7 @@
 	Ord som kan finnas med i gruppnamnet
 .Example
 	Search-SD_AzureGruppMedOrdINamnet -SökOrd "Group1"
+	Söker igenom alla Azure-grupper efter namn som innehåller Group1 i namnet
 #>
 
 function Search-SD_AzureGruppMedOrdINamnet

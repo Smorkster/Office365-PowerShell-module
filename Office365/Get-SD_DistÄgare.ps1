@@ -5,6 +5,7 @@
 	Namn eller mailadress för distributionslistan
 .Example
 	Get-SD_DistÄgare -Distributionslista "Distlista"
+	Hämtar ägaren av distributionslistan Distlista
 #>
 
 function Get-SD_DistÄgare

@@ -5,6 +5,7 @@
 	Användarens id
 .Example
 	Get-SD_AnvändareÄgareFunktionsbrevlådor -id "ABCD"
+	Hämtar alla funktionsbrevlådor som användare ABCD är ägare av
 #>
 
 function Get-SD_AnvändareÄgareFunktionsbrevlådor

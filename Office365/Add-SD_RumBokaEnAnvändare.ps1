@@ -9,6 +9,7 @@
 	Lägg in bokningsbehörighet för en användare till ett rum. Skriptet används när synken från ändring i Supportpanelen inte har gått över till Exchange.
 .Example
 	Add-SD_RumBokaEnAnvändare -id "ABCD" -Rum "RumA"
+	Skapar behörighet för användare ABCD att skapa bokningar i rum RumA
 #>
 
 function Add-SD_RumBokaEnAnvändare
@@ -39,7 +40,7 @@ function Add-SD_RumBokaEnAnvändare
 
 	try {
 		$UserAccount = Get-Mailbox -Identity $User
-		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject).BookInPolicy += $User
+		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject).BookInPolicy += $User | select -Unique
 
 		Set-CalendarProcessing -Identity $RoomObject -BookInPolicy $BookPolicy -AllBookInPolicy:$false
 	} catch [System.Management.Automation.RemoteException] {

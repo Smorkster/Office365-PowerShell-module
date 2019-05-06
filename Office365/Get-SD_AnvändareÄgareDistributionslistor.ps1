@@ -5,6 +5,7 @@
 	Användarens id
 .Example
 	Get-SD_AnvändareÄgareDistributionslistor -id "ABCD"
+	Hämtar de distributionslistor som användare ABCD är ägare av
 #>
 
 function Get-SD_AnvändareÄgareDistributionslistor

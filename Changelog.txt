@@ -1,3 +1,14 @@
+2019-05-06
+**********
+Uppdaterat och utökad hjälptexten för de flesta skripten
+
+Get-SD_RumBokningsbehörighet - Tagit bort hela synkroniseringsfunktionaliteten, ska nu enbart lista synkade/osynkade / La till parameter för att skriva ut vilka som inte är synkroniserade
+Search-SD_AnvändareMessageTrace - La till hantering om ingen adress angavs
+Search-SD_GemObjektMedOrdINamnet - La till beskrivningar för parametrar / La till felmeddelanden / Ändrade sökningsparametrar för eftektivitet och tydlighet
+Sync-SD_FunkAzureTillExchange - Kan nu ta emot både namn och mailadress för funktionsbrevlådan
+Sync-SD_RumAzureTillExchange - Uppdaterat till att nu primärt lägga in användarna i BookInPolicy, som styr bokningsbehörigheter / Synkroniserar nu hela Azure-gruppen
+Update-SD_AnvändareBehörighetTillRum - Lägger nu även på behörigheten i BookInPolicy
+
 2019-04-23
 **********
 Add-SD_RumBokaEnAnvändare - Sätter nu attribut att enbart behöriga kan boka rummet

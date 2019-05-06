@@ -6,7 +6,8 @@
 .Parameter id
 	id för användare som behöver få behörighet uppdaterad
 .Example
-	Update-SD_AnvändareBehörighetTillRum -Rum "Rum" -id "ABCD"
+	Update-SD_AnvändareBehörighetTillRum -Rum "RumA" -id "ABCD"
+	Uppdaterar behörigheten för användare ABCD till rum RumA
 #>
 
 function Update-SD_AnvändareBehörighetTillRum
@@ -52,4 +53,6 @@ function Update-SD_AnvändareBehörighetTillRum
 	}
 	Write-Verbose "Lägger på behörigheten för användaren till rummet"
 	Add-MailboxFolderPermission -Identity $($room.PrimarySmtpAddress)":\Kalender" -User $user.PrimarySmtpAddress -AccessRights LimitedDetails > $null
+	$bp = (Get-CalendarProcessing -Identity $room.DisplayName).BookInPolicy | select -Unique
+	Set-CalendarProcessing -Identity $room.DisplayName -BookInPolicy $bp -AllBookInPolicy:$false
 }

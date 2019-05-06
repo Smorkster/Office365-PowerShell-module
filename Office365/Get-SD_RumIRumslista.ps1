@@ -5,6 +5,7 @@
 	Namn på rumslista att visa
 .Example
 	Get-SD_RumIRumslista -Rumslista "ListA"
+	Hämtar alla rum som kopplats till rumslistan ListA
 #>
 
 function Get-SD_RumIRumslista

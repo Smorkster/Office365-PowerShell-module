@@ -5,10 +5,22 @@
 	Namn på rummet som efterfrågas
 .Parameter Sync
 	Anger att gruppmedlemarna ska synkroniseras till Exchange
+.Parameter Osynkade
+	Skriv ut vilka som inte har blivit synkroniserade
 .Parameter Export
 	Ange om användarnas mailadresser ska exporteras till en fil
 .Example
 	Get-SD_RumBokningsbehörighet -RumsNamn "RumA"
+	Ordinarier körning, hämtar vilka som är synkroniserade, samt hur många som inte synkats
+.Example
+	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Synkade
+	Lista enbart de personer som har blivit synkroniserade
+.Example
+	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Osynkade
+	Lista enbart de personer som inte har blivit synkroniserade
+.Example
+	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Export
+	Exportera de personer som har behörighet till en Excel-fil
 #>
 
 function Get-SD_RumBokningsbehörighet
@@ -16,15 +28,15 @@ function Get-SD_RumBokningsbehörighet
 	param(
 	[Parameter(Mandatory=$true)]
 		[string] $RumsNamn,
-		[switch] $Sync,
+		[switch] $Synkade,
+		[switch] $Osynkade,
 		[switch] $Export
 	)
 
 	try {
-		$RumsNamnExchange = $RumsNamn.Trim()+":\Kalender"
 		$RumsNamnAzure = "Res-" + $RumsNamn.Trim() + "-Book"
-		$usersExchange = @()
 		$usersAzure = @()
+		$usersExchange = @()
 		$notSynced = @()
 
 		Write-Verbose "Hämtar Azure-gruppen"
@@ -38,73 +50,40 @@ function Get-SD_RumBokningsbehörighet
 		}
 
 		Write-Verbose "Hämtar medlemmar i Azure-gruppen"
-		Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -All $true -ErrorAction Stop | % {$usersAzure += $_.UserPrincipalName}
+		$usersAzure = Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -All $true -ErrorAction Stop
 
 		if($usersAzure.Count -gt 0)
 		{
 			Write-Verbose "Hämtar behöriga till maillådan i Exchange"
-			Get-MailboxFolderPermission -Identity $RumsNamnExchange -ErrorAction Stop | ? {$_.User -notlike "Standard" -and $_.User -notlike "Anonymous"} | % {$usersExchange += $_.User.ADRecipient.UserPrincipalName}
+			$roomBookInPolicy = (Get-CalendarProcessing -Identity $RumsNamn -ErrorAction Stop).BookInPolicy
+			$roomBookInPolicy | % {$usersExchange += (Get-Mailbox -Identity $_ -ErrorAction SilentlyContinue)}
 
-			Write-Verbose "Jämför personer i Azure-gruppen med behöriga i maillådan"
-			$usersAzure | % {
-				if ($usersExchange -notcontains $_){
-					$notSynced += $_
-				}
-			}
-			if($Sync)
+			if ($Synkade)
 			{
-				Write-Host "$($usersExchange.Count) behörigheter har synkroniserats till Exchange."
+				Write-Host "Dessa har blivit synkroniserade till Exchange:"
+				$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
 			} else {
-				Write-Host "Dessa har behörighet att skapa bokningar i rum " -NoNewline
-				Write-Host $RumsNamn -ForegroundColor Cyan
-				$usersExchange | sort | % {Write-Host "`t "$_}
-			}
-			if($notSynced.Count -gt 0)
-			{
-				if ($Sync)
-				{
-					Write-Host "`n$($notSynced.Count) har inte blivit synkade med bokningsbehörighet till Exchange"
-					Write-Host "`nInitierar synkronisering från Azure till Exchange" -ForegroundColor Cyan
-					Write-Verbose "Sätter description på Azure-gruppen"
-					Set-AzureADGroup -ObjectId (Get-AzureADGroup -SearchString $RumsNamnAzure).ObjectId -Description Now -ErrorAction Stop
-					$ticker = 1
-					Write-Verbose "Startar loop för att lägga in de i Azure-gruppen som inte synkats till Exchange"
-					foreach ($ns in $notSynced) {
-						Write-Progress -Activity "Lägger på behörighet $ticker av $($notSynced.Count)" -PercentComplete (($ticker/$notSynced.Count)*100)
-						try {
-							Add-MailboxFolderPermission -Identity $RumsNamnExchange -AccessRights LimitedDetails -User $ns -Confirm:$false -ErrorAction Stop | Out-Null
-						} catch {
-							if ($_.CategoryInfo.Reason -eq "InvalidExternalUserIdException") {
-								$address = ($_.Exception -split [char]0x22)[1]
-								Write-Host "Adress $address finns inte. Personen har troligen slutat."
-							} elseif ($_.CategoryInfo.Reason -eq "ACLTooBigException") {
-								Write-Host "`nFör många medlemmar i Azure-gruppen. Kan inte synkronisera resterande $($notSynced.Count - $ticker + 1) till Exchange.`n`nAvslutar därför hanteringen."
-								return
-							} else {
-								$_
-							}
-						}
-						$ticker++
+				Write-Verbose "Jämför personer i Azure-gruppen med behöriga i maillådan"
+				foreach ( $uA in $usersAzure ) {
+					if ($roomBookInPolicy -notcontains (Get-Mailbox -Identity $uA.UserPrincipalName).LegacyExchangeDN) {
+						$notSynced += $uA
 					}
-					Write-Verbose "Hämtar BookInPolicy för rummets kalender i Exchange"
-					try {
-						Write-Verbose "Uppdaterar BookInPolicy med de icke synkroniserade"
-						Set-CalendarProcessing -Identity $RumsNamn -BookInPolicy $notSynced -AllBookinPolicy:$false -ErrorAction Stop
-					} catch {
-						if ($_.CategoryInfo.Reason -eq "CmdletProxyException")
-						{
-							Write-Host "En eller flera personer hade redan behörighet i kalendern"
-						} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Set-CalendarProcessing") {
-							Write-Host "Hittade inte rummets kalender för tilläggning av behörighet"
-						}
+				}
+				if ($Osynkade) {
+					if ($notSynced.Count -gt 0)
+					{
+						Write-Host "Dessa har inte blivit synkroniserade till Exchange:"
+						$notSynced | sort DisplayName | ft DisplayName, UserPrincipalName
+					} else {
+						Write-Host "Inga osynkade"
 					}
 				} else {
-					Write-Host "`nDessa $($notSynced.Count) har inte blivit synkade med bokningsbehörighet till Exchange"
-					$notSynced = $notSynced | sort
-					$notSynced
-
+					Write-Host "Dessa har blivit synkroniserade till Exchange:"
+					$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
+					Write-Host "$($notSynced.Count) har inte blivit synkroniserade"
 				}
 			}
+
 
 			if($Export)
 			{

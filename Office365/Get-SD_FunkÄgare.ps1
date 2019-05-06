@@ -5,6 +5,7 @@
 	Namn eller mailadress för funktionsbrevlådan
 .Example
 	Get-SD_FunkÄgare -Funktionsbrevlåda "Funklåda"
+	Hämtar ägare av funktionsbrevlåda Funklåda
 #>
 
 function Get-SD_FunkÄgare

@@ -9,8 +9,10 @@
 	Anger ifall datan ska exporteras till en CSV-fil
 .Example
 	Get-SD_DistAdresserIListan -Distlista "Distlista"
+	Hämtar alla adresser i distributionslistan Distlista, dvs alla som ska ta emot mail som skickas till distributionslistan
 .Example
 	Get-SD_DistAdresserIListan -Distlista "Distlista" -EndastExterna
+	Hämtar alla externa adresser i distributionslistan Distlista, dvs alla adresser utanför organisationen, som ska ta emot mail som skickas till distributionslistan
 #>
 
 function Get-SD_DistAdresserIListan

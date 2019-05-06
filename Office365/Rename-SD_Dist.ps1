@@ -13,6 +13,7 @@
 	DÃ¶per om en distributionslista och byter mailadress. Namn och adress mÃ¥ste fÃ¶lja namnstandarden. Ingen kontroll av detta gÃ¶rs dock.
 .Example
 	Rename-SD_Dist -OldName "OldName" -NewName "NewName" -OldEmail "oldname@test.com" -NewEmail "newname@test.com"
+	DÃ¶per om distributionslistan OldName och ger den det nya namnet NewName samt byter mailadress frÃ¥n oldname@test.com till newname@test.com
 #>
 
 function Rename-SD_Dist

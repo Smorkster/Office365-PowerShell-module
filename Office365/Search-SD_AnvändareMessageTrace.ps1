@@ -8,13 +8,23 @@
 .Parameter AdressMottagare
 	Adress för mottagaren
 .Parameter Startdatum
-	Startdatum för hur långt tillbaka messagetrace ska söka. Maxgräns är 30 dagar.
+	Startdatum för hur långt tillbaka messagetrace ska söka. Maxgräns är 10 dagar. Om startdatum utesluts, görs sökningen automatiskt för de två senaste dagarna.
 .Parameter Slutdatum
-	Slutdatum för sökningen.
+	Slutdatum för sökningen. Om slutdatum utesluts, används dagens datum
 .Parameter Export
 	Används för att exportera messagetrace till Excel-fil
 .Example
-	Search-SD_AnvändareMessageTrace -SökOrd "Group1"
+	Search-SD_AnvändareMessageTrace -AdressAvsändare "test@test.com" -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
+	Söker efter alla mail som skickats från test@test till testare@test mellan datum 1970-01-01 och 1970-01-02
+.Example
+	Search-SD_AnvändareMessageTrace -AdressAvsändare "test@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
+	Söker efter alla mail som skickats från test@test mellan datum 1970-01-01 och 1970-01-02
+.Example
+	Search-SD_AnvändareMessageTrace -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
+	Söker efter alla mail som skickats till testare@test mellan datum 1970-01-01 och 1970-01-02
+.Example
+	Search-SD_AnvändareMessageTrace -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Export
+	Söker och exporterar alla mail som skickats till testare@test från datum 1970-01-01 till idag
 #>
 
 function Search-SD_AnvändareMessageTrace
@@ -32,9 +42,9 @@ function Search-SD_AnvändareMessageTrace
 
 	if ($Startdatum)
 	{
-		if ([datetime]::Parse($Startdatum) -lt ([datetime]::Now.AddDays(-30)))
+		if ([datetime]::Parse($Startdatum) -lt ([datetime]::Now.AddDays(-10)))
 		{
-			Write-Host "Startdatum är för lång tillbaka i tiden. Maxgräns är 30 dagar"
+			Write-Host "Startdatum är för lång tillbaka i tiden. Maxgräns är 10 dagar"
 			return
 		} else {
 			if ($Slutdatum -eq "")
@@ -46,6 +56,7 @@ function Search-SD_AnvändareMessageTrace
 			}
 		}
 	}
+
 	if ($AdressAvsändare -and $AdressMottagare)
 	{
 		if ($Startdatum)
@@ -69,7 +80,7 @@ function Search-SD_AnvändareMessageTrace
 			$mails = Get-MessageTrace -SenderAddress $AdressAvsändare
 			$fileName = "H:\Mail från $AdressAvsändare till $AdressMottagare.xlsx"
 		}
-	} else {
+	} elseif ($AdressMottagare) {
 		if ($Startdatum)
 		{
 			Write-Verbose "5"
@@ -80,6 +91,9 @@ function Search-SD_AnvändareMessageTrace
 			$mails = Get-MessageTrace -RecipientAddress $AdressMottagare
 			$fileName = "H:\Mail till $AdressMottagare ($Startdatum - $Slutdatum).xlsx"
 		}
+	} else {
+		Write-Host "Varken avsändare eller mottagare angavs.`nAvbryter."
+		return
 	}
 
 	if ($Export)

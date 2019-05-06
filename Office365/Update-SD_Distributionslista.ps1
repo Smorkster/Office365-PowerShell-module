@@ -13,7 +13,8 @@
 		Add
 		Remove
 .Example
-	Update-SD_DistExterna
+	Update-SD_Distributionslista
+	Läser in mailadresser och action från Excel-filen och raderar respektive lägger till adressen i distributionslistan som anges i filen
 #>
 
 function Update-SD_Distributionslista

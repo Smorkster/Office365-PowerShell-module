@@ -7,6 +7,7 @@
 	Namn pÃ¥ distributionslistan
 .Example
 	Get-SD_DistMedlemmar -Distributionslista "Distlista"
+	HÃ¤mtar alla adresser i distributionslistan Distlista, dvs alla som ska ta emot mail som skickas till distributionslistan
 #>
 
 function Get-SD_DistMedlemmar

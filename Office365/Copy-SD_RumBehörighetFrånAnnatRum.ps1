@@ -5,6 +5,9 @@
 	Visningsnamn på det rum som behörigheter ska kopieras från
 .Parameter RumKopieraTill
 	Visningsnamn på det rum som behörigheter ska kopieras till
+.Example
+	Copy-SD_RumBehörighetFrånAnnatRum -RumKopieraFrån "RumA" -RumKopieraTill "RumB"
+	Kopierar alla behörighet som kopplats till rum RumA, till att även finnas kopplade till rum RumB
 #>
 
 function Copy-SD_RumBehörighetFrånAnnatRum

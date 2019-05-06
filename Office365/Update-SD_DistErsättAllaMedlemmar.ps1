@@ -9,6 +9,7 @@
 	Varje rad i filen ska innehålla en mailadress.
 .Example
 	Update-SD_DistErsättAllaMedlemmar -DistLista "Dist Lista"
+	Raderar alla existerande medlemmar i distributionslista 'Dist Lista' och lägger in alla personer i Excel-filen som nya medlemmar
 #>
 
 function Update-SD_DistErsättAllaMedlemmar

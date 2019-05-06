@@ -10,6 +10,7 @@
 	Den text som ska visas i bokningsbekräftelsen
 .Example
 	Set-SD_RumBekräftelseMeddelande -Rum "RumA" -Meddelande "Rummet är stort"
+	Ändrar texten som ska anges när ett rum skickar bekräftelsemail att en bokning har godkänts till "Rummet är stort"
 #>
 function Set-SD_RumBekräftelseMeddelande
 {

@@ -5,6 +5,7 @@
 	Namn på rummet
 .Example
 	Get-SD_RumPlats -Rumsnamn "RumA"
+	Hämtar den plats som angivits för rum RumA
 #>
 
 function Get-SD_RumPlats

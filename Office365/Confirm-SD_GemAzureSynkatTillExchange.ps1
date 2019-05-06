@@ -9,6 +9,7 @@
 	Typ av Outlook-objekt. Måste vara Funk, Dist, Rum eller Resurs
 .Example
 	Confirm-SD_GemAzureSynkatTillExchange -Namn "Distlista" -Typ Dist
+	Kontrollerar att alla medlemmar i Azure-gruppen för distributionslistan Distlista, har synkroniserats till Exchange
 #>
 
 function Confirm-SD_GemAzureSynkatTillExchange

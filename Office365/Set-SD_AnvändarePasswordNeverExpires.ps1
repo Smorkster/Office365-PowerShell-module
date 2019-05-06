@@ -7,6 +7,7 @@
 	Skriptet används för att sätta att lösenordet inte går ut.
 .Example
 	Set-SD_AnvändarePasswordNeverExpires -id "ABCD"
+	Anger att konto för ABCD inte ska gå ut, och lösenordet därför kommer fortsätta gälla tills det byts
 #>
 
 function Set-SD_AnvändarePasswordNeverExpires

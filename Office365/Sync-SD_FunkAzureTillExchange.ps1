@@ -4,7 +4,7 @@
 .Description
     Ifall användare har fått behörighet skapad i en Azure-grupp för funktionsbrevlåda, men detta inte har blivit översynkat till Exchange, lägger skriptet på behörigheterna manuellt.
 .Parameter Funktionsbrevlåda
-    Namn på funktionsbrevlådan
+    Namn eller mailadress på funktionsbrevlådan
 #>
 function Sync-SD_FunkAzureTillExchange
 {
@@ -13,8 +13,15 @@ function Sync-SD_FunkAzureTillExchange
 		[string] $Funktionsbrevlåda
 	)
 
-	$azureGroupNameFull = "MB-"+$Funktionsbrevlåda.Trim()+"-Full"
-	$azureGroupNameRead = "MB-"+$Funktionsbrevlåda.Trim()+"-Read"
+	if ($Funktionsbrevlåda -match "@test.com")
+	{
+		$displayname = (Get-Mailbox -Identity $Funktionsbrevlåda).DisplayName
+		$azureGroupNameFull = "MB-"+$displayname+"-Full"
+		$azureGroupNameRead = "MB-"+$displayname+"-Read"
+	} else {
+		$azureGroupNameFull = "MB-"+$Funktionsbrevlåda.Trim()+"-Full"
+		$azureGroupNameRead = "MB-"+$Funktionsbrevlåda.Trim()+"-Read"
+	}
 	$ticker = 1
 
 	try {

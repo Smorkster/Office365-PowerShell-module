@@ -10,6 +10,10 @@
 	Ifall något steg fallerar, kommer skriptet stoppas.
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD"
+	Utför tester för att kontollera att mailkonto skapats för användare ABCD. Om något test fallerar, avbryts testningen
+.Example
+	Confirm-SD_AnvändareKontoStatus -id "ABCD" -AllTests
+	Utför alla tester för att kontollera att mailkonto skapats för användare ABCD. Har det inte skapats någon msoluser, kommer dock testningen avbrytas
 #>
 function Confirm-SD_AnvändareKontoStatus
 {
@@ -78,7 +82,7 @@ function Confirm-SD_AnvändareKontoStatus
 
 	try
 	{
-		$userAzure = Get-MsolUser -UserPrincipalName $user.EmailAddress
+		$userAzure = Get-MsolUser -UserPrincipalName $user.EmailAddress -ErrorAction Stop
 	} catch {
 		Write-Host "O365-konto har inte skapats. Avbryter resten av testerna." -Foreground Red
 		return

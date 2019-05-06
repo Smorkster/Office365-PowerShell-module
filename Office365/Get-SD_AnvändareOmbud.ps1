@@ -5,6 +5,7 @@
 	id för ägaren av Outlook-kontot
 .Example
 	Get-SD_Ombud -id_Ägare "ABCD"
+	Hämtar alla ombud som skapats till mailkontot för användaren ABCD
 #>
 
 function Get-SD_AnvändareOmbud
