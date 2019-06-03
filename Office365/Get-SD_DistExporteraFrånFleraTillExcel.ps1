@@ -30,7 +30,7 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	{
 		#Get members of this group
 		$objDistributionGroup = Get-DistributionGroup -Identity $item
-		$objDGMembers = Get-DistributionGroupMember -Identity $objDistributionGroup.DisplayName
+		$objDGMembers = Get-DistributionGroupMember -Identity $objDistributionGroup.DisplayName -ResultSize Unlimited
 
 		Write-Host $count "- $($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
 
@@ -46,7 +46,12 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 		$tempname = $tempname.replace("?","_")
 		if(($tempname).Length -gt 31)
 		{
-			$excelTempsheet.Name = ($tempname).SubString(0,31)
+			try
+			{
+				$excelTempsheet.Name = ($tempname).SubString(0,31)
+			} catch {
+				$excelTempsheet.Name = ($objDistributionGroup.PrimarySMTPAddress).SubString(0,31)
+			}
 		} else {
 			$excelTempsheet.Name = $tempname
 		}
@@ -67,10 +72,13 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 		$adding = 1
 		foreach($owner in ((Get-DistributionGroup -Identity $objDistributionGroup.Name).ManagedBy))
 		{
-			$excelTempsheet.Cells.Item($row, 2) = $owner
-			Write-Progress $tempname"("$adding")"
-			$adding = $adding + 1
-			$row = $row + 1
+			if ($owner -notlike "*MIG-User*")
+			{
+				$excelTempsheet.Cells.Item($row, 2) = $owner
+				Write-Progress $tempname"("$adding")"
+				$adding = $adding + 1
+				$row = $row + 1
+			}
 		}
 		$row = $row + 1
 		$excelTempsheet.Cells.Item($row, 1) = "Medlemmar"

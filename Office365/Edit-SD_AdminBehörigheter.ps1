@@ -43,8 +43,11 @@ function Edit-SD_AdminBehörigheter
 		if ($konton -ne "")
 		{
 			$konton | % {
-				Remove-MailboxPermission -Identity $_ -User $adminAccount.UserPrincipalName -AccessRights FullAccess -Confirm:$false -WarningAction SilentlyContinue
-				Write-Host "Behörighet till $_ borttagen"
+				if ($_ -ne "")
+				{
+					Remove-MailboxPermission -Identity $_ -User $adminAccount.UserPrincipalName -AccessRights FullAccess -Confirm:$false -WarningAction SilentlyContinue
+					Write-Host "Behörighet till $_ borttagen"
+				}
 			}
 			"" > $file
 		} else {

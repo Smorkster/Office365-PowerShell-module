@@ -29,9 +29,10 @@ function Add-SD_RumBokaEnAnvändare
 	}
 
 	try {
-		$User = (Get-ADUser -Identity $id -Properties *).Mailaddress
+		$User = (Get-ADUser -Identity $id -Properties *).EmailAddress
 		if($User -eq $null) {
-			Write-Host "Ingen mailadress registrerad i AD för användaren"
+			Write-Host "Ingen mailadress registrerad i AD för användaren.`nAvslutar"
+			return
 		}
 	} catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
 		Write-Host "Användare hittades inte i AD"
@@ -40,9 +41,9 @@ function Add-SD_RumBokaEnAnvändare
 
 	try {
 		$UserAccount = Get-Mailbox -Identity $User
-		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject).BookInPolicy += $User | select -Unique
+		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject.Identity).BookInPolicy += $User | select -Unique
 
-		Set-CalendarProcessing -Identity $RoomObject -BookInPolicy $BookPolicy -AllBookInPolicy:$false
+		Set-CalendarProcessing -Identity $RoomObject.Identity -BookInPolicy $BookPolicy -AllBookInPolicy:$false
 	} catch [System.Management.Automation.RemoteException] {
 		Write-Host "Rum $Rum hittades inte i Exchange.`nAvslutar"
 	}

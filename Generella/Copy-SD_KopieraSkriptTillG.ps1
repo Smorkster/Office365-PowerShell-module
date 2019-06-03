@@ -18,7 +18,7 @@ function Copy-SD_KopieraSkriptTillG
 	$ticker = 1
 
 	foreach ($fileA in $local) {
-		Write-Progress -Activity "Hanterar fil ($ticker / $($local.Count))" -PercentComplete (($ticker/$local.Count)*100) -CurrentOperation $file.Name
+		Write-Progress -Activity "Hanterar fil ($ticker / $($local.Count))" -PercentComplete (($ticker/$local.Count)*100) -CurrentOperation $fileA.Name
 		$fileB = $central | ? {$_.Name -eq $fileA.Name}
 		if ($fileB -eq $null)
 		{

@@ -18,27 +18,39 @@ function Get-SD_AnvändareOmbud
 	try
 	{
 		$owner = Get-ADUser -Identity $id_Ägare -Properties *
+		$inbox = $owner.EmailAddress+":\Inkorg"
+		$calender = $owner.EmailAddress+":\Kalender"
 
 		Write-Host "Behörigheter till Inkorgen:" -Foreground Green
-		Get-MailboxFolderPermission -Identity $owner.EmailAddress -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
+		Get-MailboxFolderPermission -Identity $inbox -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
 
 		Write-Host "`nBehörigheter till Kalender:" -Foreground Green
 		try
 		{
-			Get-MailboxFolderPermission -Identity $owner":\Kalender" -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
+			Get-MailboxFolderPermission -Identity $calender -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
 		} catch {
 			if ( $_.CategoryInfo -like "*ManagementObjectNotFoundException*" )
 			{
 				try
 				{
-					Get-MailboxFolderPermission -Identity $owner":\Calendar" -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
+					$calender = $owner.EmailAddress+":\Calendar"
+					Get-MailboxFolderPermission -Identity $owner.EmailAddress":\Calendar" -ErrorAction Stop | ? { $_.User -notmatch "Standard" -and $_.User -notmatch "Anonymous" } | % { Write-Host $_.User " -> " $_.AccessRights }
 				} catch {
-					Write-Host "Kunde inte hitta kalendern"
+					if ( $_.CategoryInfo -like "*ManagementObjectNotFoundException*" )
+					{
+						Write-Host "Kunde inte hitta kalendern"
+					} else {
+						$_
+					}
 				}
 			} else {
-				Write-Host "Kunde inte hitta kalendern"
+				$_
 			}
 		}
+
+		Write-Host "`nDessa har behörighet att skicka mail som ombud:" -Foreground Green
+		(Get-Mailbox -Identity $owner.EmailAddress | select GrantSendOnBehalfTo).GrantSendOnBehalfTo
+
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
 		{

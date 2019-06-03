@@ -60,7 +60,8 @@ function Get-SD_RumBokningsbehörighet
 
 			if ($Synkade)
 			{
-				Write-Host "Dessa har blivit synkroniserade till Exchange:"
+				Write-Host "Dessa har behörighet att skapa bokning i " -NoNewline
+				Write-Host $RumsNamn -ForegroundColor Cyan
 				$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
 			} else {
 				Write-Verbose "Jämför personer i Azure-gruppen med behöriga i maillådan"
@@ -78,7 +79,8 @@ function Get-SD_RumBokningsbehörighet
 						Write-Host "Inga osynkade"
 					}
 				} else {
-					Write-Host "Dessa har blivit synkroniserade till Exchange:"
+					Write-Host "Dessa har behörighet att skapa bokning i " -NoNewline
+					Write-Host $RumsNamn -ForegroundColor Cyan
 					$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
 					Write-Host "$($notSynced.Count) har inte blivit synkroniserade"
 				}

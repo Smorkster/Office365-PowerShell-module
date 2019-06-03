@@ -38,7 +38,7 @@ function Sync-SD_FunkAzureTillExchange
 
 	#region Sync Full
 	$members = Get-AzureADGroupMember -ObjectId $azureGroupFull.ObjectId -All $true
-	foreach($member in $members)
+	foreach ($member in $members)
 	{
 		Write-Progress -Activity "Lägger till full behörighet för $($member.UserPrincipalName)" -PercentComplete (($ticker / $members.Count)*100)
 		try {
@@ -50,10 +50,18 @@ function Sync-SD_FunkAzureTillExchange
 	}
 	#endregion
 
+	#region GrantSendOnBehalfTo
+	foreach ($member in $members)
+	{
+		$name = (Get-ADUser ($_.ImmutableId -split "-")[1]).Name
+		Set-Mailbox -Identity $Funktionsbrevlåda -GrantSendOnBehalfTo @{Add=$name}
+	}
+	#endregion
+
 	#region Sync Read
 	$ticker = 1
 	$members = Get-AzureADGroupMember -ObjectId $azureGroupRead.ObjectId
-	foreach($member in $members)
+	foreach ($member in $members)
 	{
 		Write-Progress -Activity "Lägger till läsbehörighet för $($member.UserPrincipalName)" -PercentComplete (($ticker / $members.Count)*100)
 		try {

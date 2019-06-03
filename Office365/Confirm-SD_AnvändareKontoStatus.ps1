@@ -29,6 +29,9 @@ function Confirm-SD_AnvändareKontoStatus
 	} catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
 		Write-Host "AD-konto har inte skapats`nAlla tester avslutas."
 		return
+	} catch [Microsoft.ActiveDirectory.Management.ADServerDownException] {
+		Write-Host "Kan inte ansluta till AD-server. Läs om ActiveDirectory modulen."
+		return
 	}
 	$fail = $false
 
