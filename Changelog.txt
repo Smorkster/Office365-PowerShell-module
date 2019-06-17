@@ -1,3 +1,21 @@
+2019-06-17
+**********
+ServicedeskPowerShell-Modul - Skapar nu lista över kommandotyper / Bröt ut Show-SD_Meny till eget skript
+Add-SD_AnvändareAutosvar - Korrigerade progressbar
+Add-SD_AnvändareTillO365MigPilot - La till meddelande när det är klart / La till exception-kontroll om medlemskap finns
+Add-SD_RumBokaEnAnvändare - La till meddelande när det är klart
+Confirm-SD_AnvändareKontoStatus - Tidigarelade kontroll ifall konto i Azure har blockerad inloggning
+New-SD_Rumslista - La till meddelande när det är klart
+Remove-SD_AnvändareIkonfoto - La till meddelande när det är klart
+Set-SD_AnvändareAktiveraAzureInloggning - Bytt namn från Set-SD_AnvändareAktiveraInloggning / La till meddelande när det är klart / Ändrade hur namn skrivs ut
+Set-SD_AnvändarePasswordNeverExpires - La till meddelande när det är klart
+Set-SD_RumBekräftelseMeddelande - La till meddelande när det är klart
+Set-SD_RumBokningsDetaljerSynliga - La till meddelande när det är klart
+Show-SD_Changelog - Ändrade layout för hur changetext visas
+Show-SD_Meny - Ny. Bröt ut från funktion till eget skript / Utökade funktionaliteten för att filtrera på typ och mål / Vid filtrering visas synopsis för skriptet
+Update-SD_AnvändareBehörighetTillRum - La till meddelande när det är klart
+Update-SD_Distributionslista - Kontrollerar nu även mailadress mot kontakter / Ändrade texterna för att göra det tydligare att läsa
+
 2019-06-03
 **********
 ServicedeskPowerShell-Modul - Fyller nu upp nya changelog variabeln / Skriver nu ut version vid import

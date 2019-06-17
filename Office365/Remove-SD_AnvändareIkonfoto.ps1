@@ -18,6 +18,7 @@ function Remove-SD_AnvändareIkonfoto
 		$user = Get-ADUser -Identity $id -Properties * -ErrorAction Stop
 		$mailbox = Get-Mailbox -Identity $user.EmailAddress -ErrorAction Stop
 		Remove-UserPhoto -Identity $id -Confirm -ErrorAction Stop
+		Write-Host "Profilbild för $user.Name har nu tagits bort"
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
 		{

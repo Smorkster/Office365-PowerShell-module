@@ -21,6 +21,7 @@ function Set-SD_RumBokningsDetaljerSynliga
 	{
 		$calendar = $Room.DisplayName+":\Kalender"
 		Set-MailboxFolderPermission -Identity $calendar -User Standard -AccessRights LimitedDetails
+		Write-Host "Bokningsinformation har nu gjorts synlig för $room.DisplayName"
 	} else {
 		Write-Host "Rum " -NoNewline
 		Write-Host $Rum -NoNewline -Foreground Cyan

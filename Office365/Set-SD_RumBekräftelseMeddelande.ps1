@@ -25,6 +25,7 @@ function Set-SD_RumBekräftelseMeddelande
 	{
 		Set-CalendarProcessing -Identity $room -AdditionalResponse $Meddelande
 		Set-Mailbox -Identity $room -MailTip $Meddelande
+		Write-Host "$room.DisplayName har nu uppdaterad bokningsbekräftelse"
 	} else {
 		Write-Host "Inget rum " -NoNewline
 		Write-Host $Rum -NoNewline -Foreground Cyan

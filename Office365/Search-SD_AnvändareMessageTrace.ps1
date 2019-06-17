@@ -42,7 +42,7 @@ function Search-SD_AnvändareMessageTrace
 
 	if ($Startdatum)
 	{
-		if ([datetime]::Parse($Startdatum) -lt ([datetime]::Now.AddDays(-10)))
+		if ([datetime]::Parse($Startdatum) -lt ([datetime]::Now.AddDays(-29)))
 		{
 			Write-Host "Startdatum är för lång tillbaka i tiden. Maxgräns är 10 dagar"
 			return

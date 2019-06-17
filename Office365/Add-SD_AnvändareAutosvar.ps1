@@ -29,13 +29,13 @@ function Add-SD_AnvändareAutosvar
 	[ValidatePattern("\d{4}[-]\d{2}[-]\d{2}")]
 		[string] $Slutdatum
 	)
-	Write-Progress -Activity "Hämtar admin från AD" -PercentComplete ((1/6)*100)
+	Write-Progress -Activity "Skapar autosvar" -Status "Hämtar admin från AD" -PercentComplete ((1/6)*100)
     $adminName = Get-ADUser -Identity $env:USERNAME
 	$adminUser = $adminName.GivenName  + " " + $adminName.Surname + " (Admin)"
 	try
 	{
 		Write-Verbose "Hämtar ditt adminkonto"
-		Write-Progress -Activity "Hämtar adminkonto i Exchange" -PercentComplete ((2/6)*100)
+		Write-Progress -Activity "Skapar autosvar" -Status "Hämtar adminkonto i Exchange" -PercentComplete ((2/6)*100)
 		$adminAccount = Get-Mailbox -Anr $adminUser
 	} catch {
 		Write-Host "Hittar inget adminkonto. Avslutar" -Foreground Red
@@ -45,7 +45,7 @@ function Add-SD_AnvändareAutosvar
 	try
 	{
 		Write-Verbose "Hämtar användarkontot"
-		Write-Progress -Activity "Hämtar användares konto i Exchange" -PercentComplete ((3/6)*100)
+		Write-Progress -Activity "Skapar autosvar" -Status "Hämtar användares konto i Exchange" -PercentComplete ((3/6)*100)
 		$userAccount = Get-Mailbox -Identity (Get-ADUser -Identity $id -Properties *).Emailaddress
 	} catch [System.Management.Automation.RemoteException]{
 		Write-Host "Inget konto för " -NoNewline
@@ -56,14 +56,14 @@ function Add-SD_AnvändareAutosvar
 
 	try {
 		Write-Verbose "Skapar tillfällig behörighet till användarkontot"
-		Write-Progress -Activity "Skapar behörighet till användares konto" -PercentComplete ((4/6)*100)
+		Write-Progress -Activity "Skapar autosvar" -Status "Skapar behörighet till användares konto" -PercentComplete ((4/6)*100)
 		Add-MailboxPermission -Identity $userAccount.PrimarySmtpAddress -User $adminAccount.PrimarySmtpAddress -AccessRights FullAccess -WarningAction SilentlyContinue > $null
 	} catch {
 		Write-Host "Kunde inte lägga på full behörighet för adminkonto. Avslutar"
 		return
 	}
 	
-	Write-Progress -Activity "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
+	Write-Progress -Activity "Skapar autosvar" -Status "Lägger in autosvarsmeddelande" -PercentComplete ((5/6)*100)
 	if(-not $Startdatum)
 	{
 		$Startdatum = (Get-Date -UFormat "%Y-%m-%d")+" 00:00:00"
@@ -89,6 +89,6 @@ function Add-SD_AnvändareAutosvar
 		}
 	}
 	Write-Verbose "Tar bort behörighet från användarkontot"
-	Write-Progress -Activity "Tar bort behörighet från användarkonto" -PercentComplete ((6/6)*100)
+	Write-Progress -Activity "Skapar autosvar" -Status "Tar bort behörighet från användarkonto" -PercentComplete ((6/6)*100)
 	Remove-MailboxPermission -Identity $userAccount.PrimarySmtpAddress -User $adminAccount.PrimarySmtpAddress -AccessRights FullAccess -Confirm:$false
 }

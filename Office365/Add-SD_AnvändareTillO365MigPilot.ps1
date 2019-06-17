@@ -26,15 +26,18 @@ function Add-SD_AnvändareTillO365MigPilot
 		} else {
 			Write-Verbose "Lägger till användare"
 			Add-DistributionGroupMember -Identity $group.ObjectId -Member $User.EmailAddress -BypassSecurityGroupManagerCheck -ErrorAction Stop
+			Write-Host "$a.Name har nu lagts till i O365-MigPilots" -Foreground Green
 		}
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
 		{
-			Write-Host "Användare hittades inte i AD"
+			Write-Host "Användare hittades inte i AD" -Foreground Red
 		} elseif ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException") {
-			Write-Host "Användare hittades inte i Azure"
+			Write-Host "Användare hittades inte i Azure" -Foreground Red
+		} elseif ($_.CategoryInfo.Reason -eq "MemberAlreadyExistsException") {
+			Write-Host "Användaren är redan medlem i O365-MigPilots" -Foreground Green
 		} else {
-			Write-Host "Fel uppstod i körningen:"
+			Write-Host "Fel uppstod i körningen:" -Foreground Red
 			$_
 		}
 	}

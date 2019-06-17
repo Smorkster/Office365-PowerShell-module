@@ -55,4 +55,5 @@ function Update-SD_AnvändareBehörighetTillRum
 	Add-MailboxFolderPermission -Identity $($room.PrimarySmtpAddress)":\Kalender" -User $user.PrimarySmtpAddress -AccessRights LimitedDetails > $null
 	$bp = (Get-CalendarProcessing -Identity $room.DisplayName).BookInPolicy | select -Unique
 	Set-CalendarProcessing -Identity $room.DisplayName -BookInPolicy $bp -AllBookInPolicy:$false
+	Write-Host "$adUser.Name har nu bokningsbehörighet för $room.DisplayName"
 }

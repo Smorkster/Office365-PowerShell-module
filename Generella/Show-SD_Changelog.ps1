@@ -16,6 +16,38 @@
 	Hämtar alla ändringar som gjordes vid 1970-01-01
 #>
 
+function writetext
+{
+	param (
+		[string] $text,
+		[string] $name
+	)
+
+	$splittext = $text -split " / "
+
+	if ($name)
+	{
+		if ($splittext.Count -gt 1)
+		{
+			$first = $true
+			foreach ($c in $splittext)
+			{
+				if ($first)
+				{
+					Write-Host $c
+					$first = $false
+				} else {
+					Write-Host $(" "*($name.Length+1))$c
+				}
+			}
+		} else {
+			Write-Host $splittext
+		}
+	} else {
+		$splittext
+	}
+}
+
 function Show-SD_Changelog
 {
 	[CmdletBinding()]
@@ -27,8 +59,7 @@ function Show-SD_Changelog
 		$ParamAttrib = New-Object System.Management.Automation.ParameterAttribute
 		$AttribColl = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
 		$AttribColl.Add($ParamAttrib)
-		$scriptNames = $global:changeloghash.Keys | sort
-		$AttribColl.Add((New-Object  System.Management.Automation.ValidateSetAttribute($scriptNames)))
+		$AttribColl.Add((New-Object  System.Management.Automation.ValidateSetAttribute($global:changeloghash.Keys | sort)))
 		$RuntimeParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SkriptChanges',  [string], $AttribColl)
 
 		$ParamAttrib2 = New-Object System.Management.Automation.ParameterAttribute
@@ -63,7 +94,7 @@ function Show-SD_Changelog
 				{
 					Write-Host $text -Foreground Cyan
 				} else {
-					Write-Host $text
+					writetext -text $text -name $null
 				}
 				$date = -not $date
 			}
@@ -74,11 +105,11 @@ function Show-SD_Changelog
 			Write-Host "`n********************************`n" -Foreground Green
 			foreach ($changeItem in $global:changeloghash.GetEnumerator())
 			{
-				$a = $changeItem.Value
-				if($a[0] -match $($PSBoundParameters.ChangeDatum))
+				$item = $changeItem.Value
+				if($item[0] -match $($PSBoundParameters.ChangeDatum))
 				{
-					Write-Host "$($changeItem.Name) " -Foreground Cyan -NoNewline
-					$a[1]
+					Write-Host "$($changeItem.Name): " -Foreground Cyan -NoNewline
+					writetext -text $item[1] -name $changeItem.Name
 				}
 			}
 		} else {
@@ -91,9 +122,8 @@ function Show-SD_Changelog
 			foreach ($change in ($Global:changelog | select -First 1).ChangeText)
 			{
 				$name = ($change -split " - ")[0]
-				$text = ($change -split " - ")[1]
-				Write-Host $name " " -ForegroundColor Cyan -NoNewline
-				Write-Host $text
+				Write-Host $name": " -ForegroundColor Cyan -NoNewline
+				writetext -text ($change -split " - ")[1] -name $name
 			}
 		}
 	}

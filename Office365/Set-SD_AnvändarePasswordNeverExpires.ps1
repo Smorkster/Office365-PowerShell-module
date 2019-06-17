@@ -24,6 +24,7 @@ function Set-SD_AnvändarePasswordNeverExpires
 			$Mailadress = Get-Mailbox -Identity $adUser.EmailAddress -ErrorAction Stop
 		}
 		Set-MsolUser -UserPrincipalName $Mailadress -PasswordNeverExpires $true -ErrorAction Stop
+		Write-Host "Lösenordsåterställning har nu inaktiverats för $Mailadress"
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")
 		{

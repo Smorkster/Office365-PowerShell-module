@@ -25,4 +25,6 @@ function New-SD_Rumslista
 	Set-DistributionGroup -Identity $NamnPåRumslista -PrimarySMTPAddress $PrimarySMTPAddress
 	Set-DistributionGroup -Identity $NamnPåRumslista -EmailAddresses @{Add="smtp:$Smtpadress"}
 	Set-DistributionGroup -Identity $NamnPåRumslista -Description "Now"
+	
+	Write-Host "Rumslista '$NamnPåRumslista' har nu skapats"
 }

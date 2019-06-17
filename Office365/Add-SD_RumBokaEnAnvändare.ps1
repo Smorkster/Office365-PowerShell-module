@@ -29,8 +29,8 @@ function Add-SD_RumBokaEnAnvändare
 	}
 
 	try {
-		$User = (Get-ADUser -Identity $id -Properties *).EmailAddress
-		if($User -eq $null) {
+		$User = Get-ADUser -Identity $id -Properties *
+		if($User.Emailaddress -eq $null) {
 			Write-Host "Ingen mailadress registrerad i AD för användaren.`nAvslutar"
 			return
 		}
@@ -40,10 +40,12 @@ function Add-SD_RumBokaEnAnvändare
 	}
 
 	try {
-		$UserAccount = Get-Mailbox -Identity $User
-		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject.Identity).BookInPolicy += $User | select -Unique
+		$UserAccount = Get-Mailbox -Identity $User.Emailaddress
+		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject.Identity).BookInPolicy += $User.Emailaddress | select -Unique
 
 		Set-CalendarProcessing -Identity $RoomObject.Identity -BookInPolicy $BookPolicy -AllBookInPolicy:$false
+		
+		Write-Host "$User.Name har nu behörighet att boka $RoomObject.DisplayName"
 	} catch [System.Management.Automation.RemoteException] {
 		Write-Host "Rum $Rum hittades inte i Exchange.`nAvslutar"
 	}
