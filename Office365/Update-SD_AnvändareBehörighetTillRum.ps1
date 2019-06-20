@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Uppdaterar användares behörighet till rum
-.PARAMETER Rum
+.Description
+	Skapar om behörigheten för en användare till ett rum. Detta kan vara användbart ifall behörigheten inte verkar ha blivit synkroniserad ordentligt, t.ex. att den ligger listad som den ska. Om behörigheten är listad, tas den först bort.
+.Parameter Rum
 	Namn eller mailadress för rummet
 .Parameter id
 	id för användare som behöver få behörighet uppdaterad

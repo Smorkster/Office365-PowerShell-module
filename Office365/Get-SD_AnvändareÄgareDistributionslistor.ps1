@@ -1,6 +1,8 @@
 <#
 .Synopsis
-	Hämta alla distributionslistor en användare är markerad som ägare för
+	Hämta distributionslistor användare är ägare för
+.Description
+	Hämtar alla distributionslistor som en användare är registrerad som ägare för
 .Parameter id
 	Användarens id
 .Example

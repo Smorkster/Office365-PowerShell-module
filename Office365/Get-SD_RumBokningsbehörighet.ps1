@@ -1,6 +1,8 @@
 <#
-.SYNOPSIS
-	Hämtar en lista över vilka som kan skapa bokningar i ett rum
+.Synopsis
+	Hämtar vilka som kan boka ett rum
+.Description
+	Listar vilka personser som kan skapa bokningar i angivet rum. Om angivet, kontrolleras om det finns personer som inte har blivit synkroniserade från Azure, samt ifall de ska bli synkroniserade. Det går även att exportera de synkroniserade personerna till en Excel-fil som då kommer sparas på H:.
 .Parameter RumsNamn
 	Namn på rummet som efterfrågas
 .Parameter Sync
@@ -19,7 +21,7 @@
 	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Osynkade
 	Lista enbart de personer som inte har blivit synkroniserade
 .Example
-	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Export
+	Get-SD_RumBokningsbehörighet -RumsNamn "RumA" -Exportera
 	Exportera de personer som har behörighet till en Excel-fil
 #>
 
@@ -30,7 +32,7 @@ function Get-SD_RumBokningsbehörighet
 		[string] $RumsNamn,
 		[switch] $Synkade,
 		[switch] $Osynkade,
-		[switch] $Export
+		[switch] $Exportera
 	)
 
 	try {
@@ -48,97 +50,110 @@ function Get-SD_RumBokningsbehörighet
 			Write-Host " hittades.`nAvslutar"
 			return
 		}
+	} catch [Microsoft.Open.AzureAD16.Client.ApiException] {
+		Write-Host "Problem att hitta Azure-gruppen för behörigheter. Kontrollera att den finns och är korrekt kopplad."
+	}
 
-		Write-Verbose "Hämtar medlemmar i Azure-gruppen"
-		$usersAzure = Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -All $true -ErrorAction Stop
 
-		if($usersAzure.Count -gt 0)
+	Write-Verbose "Hämtar medlemmar i Azure-gruppen"
+	$usersAzure = Get-AzureADGroupMember -ObjectId $AzureGroup.ObjectId -All $true -ErrorAction Stop
+
+	if($usersAzure.Count -gt 0)
+	{
+		Write-Verbose "Hämtar behöriga till maillådan i Exchange"
+		try
 		{
-			Write-Verbose "Hämtar behöriga till maillådan i Exchange"
 			$roomBookInPolicy = (Get-CalendarProcessing -Identity $RumsNamn -ErrorAction Stop).BookInPolicy
 			$roomBookInPolicy | % {$usersExchange += (Get-Mailbox -Identity $_ -ErrorAction SilentlyContinue)}
-
-			if ($Synkade)
+		} catch {
+			if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Get-MailboxFolderPermission")
 			{
+				Write-Host "Rummets maillåda gick inte att hitta"
+			}
+		}
+
+		if ($Synkade)
+		{
+			Write-Host "Dessa har behörighet att skapa bokning i " -NoNewline
+			Write-Host $RumsNamn -ForegroundColor Cyan
+			$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
+		} else {
+			Write-Verbose "Jämför personer i Azure-gruppen med behöriga i maillådan"
+			foreach ( $uA in $usersAzure ) {
+				if ($roomBookInPolicy -notcontains (Get-Mailbox -Identity $uA.UserPrincipalName).LegacyExchangeDN) {
+					$notSynced += $uA
+				}
+			}
+			if ($Osynkade) {
+				if ($notSynced.Count -gt 0)
+				{
+					Write-Host "Dessa har inte blivit synkroniserade till Exchange:"
+					$notSynced | sort DisplayName | ft DisplayName, UserPrincipalName
+				} else {
+					Write-Host "Inga osynkade"
+				}
+			} else {
 				Write-Host "Dessa har behörighet att skapa bokning i " -NoNewline
 				Write-Host $RumsNamn -ForegroundColor Cyan
 				$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
-			} else {
-				Write-Verbose "Jämför personer i Azure-gruppen med behöriga i maillådan"
-				foreach ( $uA in $usersAzure ) {
-					if ($roomBookInPolicy -notcontains (Get-Mailbox -Identity $uA.UserPrincipalName).LegacyExchangeDN) {
-						$notSynced += $uA
-					}
-				}
-				if ($Osynkade) {
-					if ($notSynced.Count -gt 0)
-					{
-						Write-Host "Dessa har inte blivit synkroniserade till Exchange:"
-						$notSynced | sort DisplayName | ft DisplayName, UserPrincipalName
-					} else {
-						Write-Host "Inga osynkade"
-					}
-				} else {
-					Write-Host "Dessa har behörighet att skapa bokning i " -NoNewline
-					Write-Host $RumsNamn -ForegroundColor Cyan
-					$usersExchange | sort DisplayName | ft DisplayName, PrimarySmtpAddress
-					Write-Host "$($notSynced.Count) har inte blivit synkroniserade"
-				}
+				Write-Host "$($notSynced.Count) har inte blivit synkroniserade"
 			}
+		}
 
 
-			if($Export)
+		if($Exportera)
+		{
+			if($usersExchange.Count -eq 0)
 			{
+				Write-Host "Inga användare att exportera"
+			} else {
 				Write-Verbose "Startar Excel"
 				$excel = New-Object -ComObject excel.application 
 				$excel.visible = $false
 				$excelWorkbook = $excel.Workbooks.Add()
-				$excelTempsheet = $excelWorkbook.Worksheets.Add()
+				$excelWorksheet = $excelWorkbook.ActiveSheet
 				$row = 1
-				$excelTempsheet.Cells.Item($row, 1) = "Rumsamn"
-				$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
-				$excelTempsheet.Cells.Item($row, 2) = $RumsNamn
+				$excelWorksheet.Cells.Item($row, 1) = "Rumsamn"
+				$excelWorksheet.Cells.Item($row, 1).Font.Bold = $true
+				$excelWorksheet.Cells.Item($row, 2) = $RumsNamn
 				$row = $row + 2
-				$excelTempsheet.Cells.Item($row, 1) = "Bokningsbehörighet:"
-				$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
+				$excelWorksheet.Cells.Item($row, 1) = "Bokningsbehörighet:"
+				$excelWorksheet.Cells.Item($row, 1).Font.Bold = $true
 				$row++
 
-				Write-Verbose "Startar loop för att lägga in personer med behörighet i celler"
+				Write-Verbose "Samlar ihop medlemmarna"
+				$membersArray = @()
+				$membersMailArray = @()
 				foreach ($user in $usersExchange) {
 					if ($user -notlike "")
 					{
-						$excelTempsheet.Cells.Item($row, 1) = $user
-						$row++
+						$membersArray += $user.Name
+						$membersMailArray += $user.PrimarySmtpAddress
 					}
 				}
-				$excelRange = $excelTempsheet.UsedRange
+
+				Set-Clipboard -Value $membersArray
+				$excelWorksheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
+				Set-Clipboard -Value $membersMailArray
+				$excelWorksheet.Cells.Item($row, 3).PasteSpecial() | Out-Null
+				$excelRange = $excelWorksheet.UsedRange
 				$excelRange.EntireColumn.AutoFit() | Out-Null
-				$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item(3,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 1)), 0, 1) | Out-Null
 
 				$excelWorkbook.SaveAs("H:\Kan boka i '$RumsNamn'.xlsx")
 				$excelWorkbook.Close()
 				Write-Host "Användarna exporterade till din H:`n" -NoNewline
-				Write-Host "(H:\Kan boka i '$RumsNamn'.xlsx)" -ForegroundColor Cyan
+				Write-Host "H:\Kan boka i '$RumsNamn'.xlsx" -ForegroundColor Cyan
 
 				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelRange) | Out-Null
-				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelTempsheet) | Out-Null
+				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorksheet) | Out-Null
 				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorkbook) | Out-Null
 				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
 				[System.GC]::Collect()
 				[System.GC]::WaitForPendingFinalizers()
 				Remove-Variable excel
 			}
-		} else {
-			Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unika behörigheter har skapats, alla kan boka rummet."
 		}
-	} catch [Microsoft.Open.AzureAD16.Client.ApiException] {
-		Write-Host "Problem att hitta Azure-gruppen för behörigheter. Kontrollera att den finns och är korrekt kopplad."
-	} catch {
-		if ($_.CategoryInfo.Reason -eq "ManagementObjectNotFoundException" -and $_.CategoryInfo.Activity -eq "Get-MailboxFolderPermission") {
-			Write-Host "Rummets maillåda gick inte att hitta"
-		} else {
-			Write-Host "Fel uppstod i körningen:"
-			$_
-		}
+	} else {
+		Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unika behörigheter har skapats, alla kan boka rummet."
 	}
 }

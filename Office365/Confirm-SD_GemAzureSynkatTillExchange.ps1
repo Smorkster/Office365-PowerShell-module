@@ -1,8 +1,8 @@
 <#
 .Synopsis
-	Har Azure synkroniserat till Exchange
+	Har Azure-objekt synkroniserat till Exchange
 .Description
-	Kontrollera ifall alla användare i Azure-grupperna har synkroniserats till Exchange
+	Kontrollera ifall alla användare i Azure-grupp har synkroniserats till Exchange. Kontrollen görs för alla behörighetsnivåer enligt säkerhetsgrupperna i Azure.
 .Parameter Namn
 	Namn på Outlook-objektet
 .Parameter Typ

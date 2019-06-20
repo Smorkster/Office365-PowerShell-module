@@ -8,6 +8,7 @@
 .Example
 	Get-SD_DatorerADKontoLåstsVid -id "ABCD"
 #>
+
 function Get-SD_DatorerADKontoLåstsVid
 {
 	param(

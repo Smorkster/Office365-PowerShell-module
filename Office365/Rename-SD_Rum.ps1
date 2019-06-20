@@ -1,16 +1,16 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Döp om ett rum
-.PARAMETER OldName
-	Det nuvarande namnet på rummet
-.PARAMETER NewName
-	Det nya namnet på rummet. Måste följa nuvarande namnstandard.
-.PARAMETER OldEmail
-	Den gamla mailadressen för rummet
-.PARAMETER NewEmail
-	Den nya mailadressen för rummet. Måste följa nuvarande namnstandard.
-.DESCRIPTION
+.Description
 	Döper om ett rum och byter mailadress. Namn och adress måste följa namnstandarden. Ingen kontroll av detta görs dock.
+.Parameter OldName
+	Det nuvarande namnet på rummet
+.Parameter NewName
+	Det nya namnet på rummet. Måste följa nuvarande namnstandard.
+.Parameter OldEmail
+	Den gamla mailadressen för rummet
+.Parameter NewEmail
+	Den nya mailadressen för rummet. Måste följa nuvarande namnstandard.
 .Example
 	Rename-SD_Rum -OldName "OldName" -NewName "NewName" -OldEmail "oldname@test.com" -NewEmail "newname@test.com"
 	Döper om rummet OldName och ger den det nya namnet NewName samt byter mailadress från oldname@test.com till newname@test.com

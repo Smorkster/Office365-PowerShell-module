@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Hämtar ägare av distributionslista
-.PARAMETER Distributionslista
+.Description
+	Hämtar registrerad ägare av distributionslista från Exchange
+.Parameter Distributionslista
 	Namn eller mailadress för distributionslistan
 .Example
 	Get-SD_DistÄgare -Distributionslista "Distlista"

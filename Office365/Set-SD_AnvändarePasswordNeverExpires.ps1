@@ -1,10 +1,10 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Anger att lösenordet för kontot inte går ut
-.PARAMETER id
+.Description
+	Sätter att lösenordet för konto i Azure inte går ut.
+.Parameter id
 	id för kontot
-.DESCRIPTION
-	Skriptet används för att sätta att lösenordet inte går ut.
 .Example
 	Set-SD_AnvändarePasswordNeverExpires -id "ABCD"
 	Anger att konto för ABCD inte ska gå ut, och lösenordet därför kommer fortsätta gälla tills det byts

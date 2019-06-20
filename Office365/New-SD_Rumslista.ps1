@@ -1,14 +1,14 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Skapa en ny rumslista
-.PARAMATER NamnPåRumslista
+.Parameter NamnPåRumslista
 	Namnet för rumslistan. Ska följa namnstandarden "<Organisation> <Namn>"
-.PARAMATER PrimarySMTPAddress
+.Parameter PrimarySMTPAddress
 	Primär SMTP-adress för distributionslistan. Ska följa namnstandarden för distributionslistor
-.PARAMATER Smtpadress
+.Parameter Smtpadress
 	Sekundär SMTP-adress
-.SYNTAX
-	New-DistributionGroup -NamnPåRumslista <Namn> -PrimarySMTPAddress <Mailadress> -Smtpadress <Mailadress>
+.Example
+	New-DistributionGroup -NamnPåRumslista "RumLista" -PrimarySMTPAddress "rumslista@test.com" -Smtpadress "rumslista@test.com"
 #>
 function New-SD_Rumslista
 {

@@ -11,7 +11,7 @@
 	Startdatum för hur långt tillbaka messagetrace ska söka. Maxgräns är 10 dagar. Om startdatum utesluts, görs sökningen automatiskt för de två senaste dagarna.
 .Parameter Slutdatum
 	Slutdatum för sökningen. Om slutdatum utesluts, används dagens datum
-.Parameter Export
+.Parameter Exportera
 	Används för att exportera messagetrace till Excel-fil
 .Example
 	Search-SD_AnvändareMessageTrace -AdressAvsändare "test@test.com" -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
@@ -23,7 +23,7 @@
 	Search-SD_AnvändareMessageTrace -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
 	Söker efter alla mail som skickats till testare@test mellan datum 1970-01-01 och 1970-01-02
 .Example
-	Search-SD_AnvändareMessageTrace -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Export
+	Search-SD_AnvändareMessageTrace -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Exportera
 	Söker och exporterar alla mail som skickats till testare@test från datum 1970-01-01 till idag
 #>
 
@@ -37,7 +37,7 @@ function Search-SD_AnvändareMessageTrace
 		[string] $Startdatum,
 	[ValidatePattern("\d{4}[-]\d{2}[-]\d{2}")]
 		[string] $Slutdatum,
-		[switch] $Export
+		[switch] $Exportera
 	)
 
 	if ($Startdatum)
@@ -78,7 +78,7 @@ function Search-SD_AnvändareMessageTrace
 		} else {
 			Write-Verbose "4"
 			$mails = Get-MessageTrace -SenderAddress $AdressAvsändare
-			$fileName = "H:\Mail från $AdressAvsändare till $AdressMottagare.xlsx"
+			$fileName = "H:\Mail från $AdressAvsändare.xlsx"
 		}
 	} elseif ($AdressMottagare) {
 		if ($Startdatum)
@@ -89,50 +89,72 @@ function Search-SD_AnvändareMessageTrace
 		} else {
 			Write-Verbose "6"
 			$mails = Get-MessageTrace -RecipientAddress $AdressMottagare
-			$fileName = "H:\Mail till $AdressMottagare ($Startdatum - $Slutdatum).xlsx"
+			$fileName = "H:\Mail till $AdressMottagare.xlsx"
 		}
 	} else {
 		Write-Host "Varken avsändare eller mottagare angavs.`nAvbryter."
 		return
 	}
 
-	if ($Export)
+	if ($Exportera)
 	{
-		Write-Host "Påbörjar export"
-		$excel = New-Object -ComObject excel.application 
-		$excel.visible = $false
-		$excelWorkbook = $excel.Workbooks.Add()
-		$excelWorksheet = $excelWorkbook.ActiveSheet
-		$excelWorksheet.Cells.Item(1, 1) = "Received"
-		$excelWorksheet.Cells.Item(1, 2) = "SenderAddress"
-		$excelWorksheet.Cells.Item(1, 3) = "Subject"
-		$row = 2
-
-		foreach ($mail in $mails)
+		if ($mails.Count -eq 0)
 		{
-			$excelWorksheet.Cells.Item($row, 1) = $mail.Received.ToShortDateString() + " " + $mail.Received.ToLongTimeString()
-			$excelWorksheet.Cells.Item($row, 1).NumberFormat = "ÅÅÅÅ-MM-DD tt:mm:ss"
-			$excelWorksheet.Cells.Item($row, 2) = $mail.SenderAddress
-			$excelWorksheet.Cells.Item($row, 3) = $mail.Subject
-			$row++
+			Write-Host "Inga mail att exportera"
+		} else {
+			Write-Host "Påbörjar export"
+			$excel = New-Object -ComObject excel.application 
+			$excel.visible = $false
+			$excelWorkbook = $excel.Workbooks.Add()
+			$excelWorksheet = $excelWorkbook.ActiveSheet
+			$excelWorksheet.Cells.Item(1, 1) = "Receivedate"
+			$excelWorksheet.Cells.Item(1, 2) = "SenderAddress"
+			$excelWorksheet.Cells.Item(1, 3) = "RecipientAddress"
+			$excelWorksheet.Cells.Item(1, 4) = "Subject"
+			$row = 2
+
+			$mailDateArray = @()
+			$mailSenderArray = @()
+			$mailRecipientArray = @()
+			$mailSubjectArray = @()
+			foreach ($mail in $mails)
+			{
+				$mailDateArray += $mail.Received.ToShortDateString() + " " + $mail.Received.ToLongTimeString()
+				$mailSenderArray += $mail.SenderAddress
+				$mailRecipientArray += $mail.RecipientAddress
+				$mailSubjectArray += $mail.Subject
+			}
+
+			Set-Clipboard -Value $mailDateArray
+			$excelWorksheet.Cells.Item($row, 1).PasteSpecial() | Out-Null
+			Set-Clipboard -Value $mailSenderArray
+			$excelWorksheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
+			Set-Clipboard -Value $mailRecipientArray
+			$excelWorksheet.Cells.Item($row, 3).PasteSpecial() | Out-Null
+			Set-Clipboard -Value $mailSubjectArray
+			$excelWorksheet.Cells.Item($row, 4).PasteSpecial() | Out-Null
+
+			$range = $excelWorksheet.Range($excelWorksheet.Cells.Item(2, 1), $excelWorksheet.Cells.Item($mails.Count+1,1))
+			$range.NumberFormat = "ÅÅÅÅ-MM-DD tt:mm:ss"
+
+			$excelRange = $excelWorksheet.UsedRange
+			$excelRange.EntireColumn.AutoFit() | Out-Null
+			$excelWorksheet.ListObjects.Add(1, $excelWorksheet.Range($excelWorksheet.Cells.Item(1, 1),$excelWorksheet.Cells.Item($excelWorksheet.usedrange.rows.count, 4)), 0, 1) | Out-Null
+			$excelWorkbook.SaveAs($fileName)
+			$excelWorkbook.Close()
+			$excel.Quit()
+
+			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelRange) | Out-Null
+			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorksheet) | Out-Null
+			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorkbook) | Out-Null
+			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
+			[System.GC]::Collect()
+			[System.GC]::WaitForPendingFinalizers()
+			Remove-Variable excel
+			
+			Write-Host "MessageTrace har nu blivit exporterad till " -NoNewline
+			Write-Host $fileName -Foreground Cyan
 		}
-
-		$excelRange = $excelWorksheet.UsedRange
-		$excelRange.EntireColumn.AutoFit() | Out-Null
-		$excelWorksheet.ListObjects.Add(1, $excelWorksheet.Range($excelWorksheet.Cells.Item(1, 1),$excelWorksheet.Cells.Item($excelWorksheet.usedrange.rows.count, 3)), 0, 1) | Out-Null
-		$excelWorkbook.SaveAs($fileName)
-		$excelWorkbook.Close()
-		$excel.Quit()
-
-		[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelRange) | Out-Null
-		[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorksheet) | Out-Null
-		[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorkbook) | Out-Null
-		[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
-		[System.GC]::Collect()
-		[System.GC]::WaitForPendingFinalizers()
-		Remove-Variable excel
-		
-		Write-Host "MessageTrace har nu blivit exporterad till $fileName"
 	} else {
 		$mails
 	}

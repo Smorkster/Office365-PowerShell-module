@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Aktiverar inloggning för Office365-kontot
-.PARAMETER id
+.Description
+	Ändrar status för inloggningsmöjligheten för ett Office365-konto från inaktivt till aktivt
+.Parameter id
 	id för användaren
 .Example
 	Set-SD_AnvändareAktiveraAzureInloggning -id "ABCD"

@@ -1,14 +1,14 @@
 <#
 .Synopsis
-	Hämtar alla medlemmar från flera Azure-grupper för rum, och lägger in i en Excel-fil
+	Exporterar alla medlemmar från flera Azure-grupper för rum till en Excel-fil
+.Description
+	Hämtar medlemmar från Azure-grupper för rum eller resurs för angiven kund med angiven behörighet. Medlemmarna exporteras till en Excel-fil som sparas på H:.
 .Parameter GruppTyp
 	Typ av Azure-grupp [Admins, Full, Read]
 .Parameter RumResurs
 	Gäller det rum eller resurs
 .Parameter Kund
 	Vilken kund gäller exporten för
-.Description
-	Hämtar medlemmar från Azuregrupper och lägger in i Excel-fil
 #>
 
 function Get-SD_RumExporteraFrånFleraTillExcel
@@ -34,6 +34,7 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 	$excelWorksheet.Cells.Item($row, 1) = "Rumsnamn"
 	$excelWorksheet.Cells.Item($row, 2) = "Medlemmar"
 	$excelWorksheet.Cells.Item($row, 3) = "Medlems adress"
+	$row++
 	#endregion
 	  
 	#Get all Azure-groups
@@ -55,12 +56,11 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 		$row++
 		$excelWorksheet.Cells.Item($row, 1) = $roomAzureGroup.DisplayName -replace "Res-","" -replace "-Admins",""
 
-		$adding = 1
 		$memArray = @()
 		$mailArray = @()
 		if ($azureGroupMembers.Count -eq 0)
 		{
-			$memArray += "-"
+			$memArray += "Inga medlemmar"
 			$mailArray += "-"
 		} else {
 			foreach ($azureGroupMember in $azureGroupMembers)  
@@ -69,20 +69,20 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 				$mailArray += $azureGroupMember.UserPrincipalName
 			}
 		}
-		$memArray | clip
+		Set-Clipboard -Value $memArray
 		$excelWorksheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
-		$mailArray | clip
+		Set-Clipboard -Value $mailArray
 		$excelWorksheet.Cells.Item($row, 3).PasteSpecial() | Out-Null
 		#endregion Add Members
 
 		$row = $row + $memArray.Count
-		$count = $count+1
+		$count = $count + 1
 	}
 
 	$excelRange = $excelWorksheet.UsedRange
 	$excelRange.EntireColumn.AutoFit() | Out-Null
-	Write-Host "Rum, med $GruppTyp medlemmar, sparade i H:\$GruppTyp behörighet för $RumResurs hos $Kund.xlsx"
-	$excelWorkbook.SaveAs("H:\Alla med '$GruppTyp'-behörighet för $RumResurs hos $Kund.xlsx")
+	$filename = "H:\Alla med '$GruppTyp'-behörighet för $RumResurs hos $Kund.xlsx"
+	$excelWorkbook.SaveAs($filename)
 	$excelWorkbook.Close()
 	$excel.Quit()
 
@@ -93,4 +93,6 @@ function Get-SD_RumExporteraFrånFleraTillExcel
 	[System.GC]::Collect()
 	[System.GC]::WaitForPendingFinalizers()
 	Remove-Variable excel
+	Write-Host "$Typ, med '$GruppTyp' medlemmar hos $Kund, sparade i " -NoNewline
+	Write-Host $filename -Foreground Cyan
 }

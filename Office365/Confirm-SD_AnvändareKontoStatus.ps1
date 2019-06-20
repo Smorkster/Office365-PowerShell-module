@@ -1,13 +1,13 @@
 <#
 .Synopsis
 	Kontrollera status på olika delar av ett mailkonto
+.Description
+	Kontrollerar alla steg för synkronisering och skapande av ett O365-konto. För varje kontroll skrivs en rapport i kommandofönstret.
+	Ifall något steg fallerar, kommer skriptet stoppas.
 .Parameter id
 	id för användaren
 .Parameter AllTests
 	Switch för att köra alla kontroller
-.Description
-	Ange id för användaren och skriptet kommer kontrollera alla steg som utförs vid synkronisering. För varje kontroll skrivs en rapport i commandofönstret.
-	Ifall något steg fallerar, kommer skriptet stoppas.
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD"
 	Utför tester för att kontollera att mailkonto skapats för användare ABCD. Om något test fallerar, avbryts testningen
@@ -15,6 +15,7 @@
 	Confirm-SD_AnvändareKontoStatus -id "ABCD" -AllTests
 	Utför alla tester för att kontollera att mailkonto skapats för användare ABCD. Har det inte skapats någon msoluser, kommer dock testningen avbrytas
 #>
+
 function Confirm-SD_AnvändareKontoStatus
 {
 	param(

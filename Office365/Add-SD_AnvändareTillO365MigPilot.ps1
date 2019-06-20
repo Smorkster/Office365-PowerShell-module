@@ -1,12 +1,13 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lägger in en användare i gruppen O365-MigPilots
-.PARAMETER id
-	id för användaren
-.DESCRIPTION
+.Description
 	Ifall en användare inte har blivit inlagd i gruppen O365-MigPilots kan det bli problem med att t.ex. logga in.
 	Använd då detta skript för att lägga till användaren.
-.Example Add-SD_AnvändareTillO365MigPilot -id "ABCD"
+.Parameter id
+	id för användaren
+.Example
+	Add-SD_AnvändareTillO365MigPilot -id "ABCD"
 #>
 
 function Add-SD_AnvändareTillO365MigPilot

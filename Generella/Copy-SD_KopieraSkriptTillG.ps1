@@ -1,8 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Kopierar PowerShell-script till centrala mappen på G:
-.DESCRIPTION
-	Hämtar alla PowerShell-script från lokal och centrala mappen, gör en jämförelse om något har ändrats lokalt och uppdaterar i så fall.
+.Description
+	Skapar en lista av alla PowerShell-script från lokal samt centrala mappen. Gör sedan en jämförelse om någon fil är nyare i lokal mapp, i så fall uppdateras fil i central mapp.
+	Gör utskrift om fil uppdateras, skriver sedan ut en summering av uppdateringen
 .Example
 	Copy-SD_KopieraTillG
 #>
@@ -18,7 +19,7 @@ function Copy-SD_KopieraSkriptTillG
 	$ticker = 1
 
 	foreach ($fileA in $local) {
-		Write-Progress -Activity "Hanterar fil ($ticker / $($local.Count))" -PercentComplete (($ticker/$local.Count)*100) -CurrentOperation $fileA.Name
+		Write-Progress -Activity "Kopierar till G" -PercentComplete (($ticker/$local.Count)*100) -Status "Hanterar fil ($ticker / $($local.Count))" -CurrentOperation $fileA.Name
 		$fileB = $central | ? {$_.Name -eq $fileA.Name}
 		if ($fileB -eq $null)
 		{
@@ -46,5 +47,6 @@ function Copy-SD_KopieraSkriptTillG
 		$fileB = $null
 		$ticker++
 	}
+	Write-Progress -Activity "Kopierar till G" -Completed
 	Write-Host "$oförändrade filer oförändrade"
 }

@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Tar bort en användares profilbild i Office365
-.PARAMETER id
+.Description
+	Tar bort profilbilden från en användares Office365-konto
+.Parameter id
 	id för användaren
 .Example
 	Remove-SD_AnvändareIkonfoto -id "ABCD"

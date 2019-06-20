@@ -1,6 +1,8 @@
 <#
 .Synopsis
-	Hämtar alla medlemmar från flera distributionlistor och lägger in i en Excel-fil
+	Exporterar medlemmar från flera distributionlistor till en Excel-fil
+.Description
+	Läser in distributionslistor från en Excel-fil, angiven som parameter, och hämtar alla användare i de distributionlistorna. De läggs sedan in i en ny Excel-fil, en distributionslista per Excel-blad och sparas på H:.
 .Parameter InputFile
 	Fil med de distributionlistor där medlemmar ska hämtas ifrån
 .Description
@@ -35,7 +37,12 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 		Write-Host $count "- $($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
 
 		#region Create worksheet
-		$excelTempsheet = $excelWorkbook.Worksheets.Add()
+		if ($count -eq 1)
+		{
+			$excelTempsheet = $excelWorkbook.ActiveSheet
+		} else {
+			$excelTempsheet = $excelWorkbook.Worksheets.Add()
+		}
 		$tempname = $objDistributionGroup.DisplayName
 		$tempname = $tempname.replace("\","_")
 		$tempname = $tempname.replace("/","_")
@@ -69,39 +76,43 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 		$row = 3
 		$excelTempsheet.Cells.Item($row, 1) = "Ägare"
 		$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
-		$adding = 1
 		foreach($owner in ((Get-DistributionGroup -Identity $objDistributionGroup.Name).ManagedBy))
 		{
 			if ($owner -notlike "*MIG-User*")
 			{
 				$excelTempsheet.Cells.Item($row, 2) = $owner
-				Write-Progress $tempname"("$adding")"
-				$adding = $adding + 1
 				$row = $row + 1
 			}
 		}
-		$row = $row + 1
+
+		$row = $row + 2
 		$excelTempsheet.Cells.Item($row, 1) = "Medlemmar"
 		$startTableRow = $row
-		$excelTempsheet.Cells.Item($row, 2) = "Medlems adress"
+		$excelTempsheet.Cells.Item($row, 2) = "Mailadress"
 		$row = $row + 1
-		$adding = 1
-		foreach ($objMember in $objDGMembers)  
-		{  
-			$excelTempsheet.Cells.Item($row,1) = $objMember.Name
-			$excelTempsheet.Cells.Item($row,2) = $objMember.PrimarySMTPAddress
-			Write-Progress $tempname"("$adding")" -PercentComplete (($adding/$objDGMembers.Count)*100)
-			$adding = $adding + 1
-			$row = $row+1
+		if ($objDGMembers.Count -eq 0)
+		{
+			$excelTempsheet.Cells.Item($row, 1) = "-"
+		} else {
+			$memberArray = @()
+			$memberMailArray = @()
+			foreach ($objMember in $objDGMembers)  
+			{  
+				$memberArray += $objMember.Name
+				$memberMailArray += $objMember.PrimarySMTPAddress
+			}
+			Set-Clipboard -Value $memberArray
+			$excelTempsheet.Cells.Item($row, 1).PasteSpecial() | Out-Null
+			Set-Clipboard -Value $memberMailArray
+			$excelTempsheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
+			$excelRange = $excelTempsheet.UsedRange
+			$excelRange.EntireColumn.AutoFit() | Out-Null
+			$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
 		}
-		$excelRange = $excelTempsheet.UsedRange
-		$excelRange.EntireColumn.AutoFit() | Out-Null
-		$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
 		#endregion Add Members
 
 		$count = $count+1
 	}
-	Write-Host "Distributionslistor, med medlemmar, sparade i H:\Distributionslistor.xlsx"
 	$excelWorkbook.SaveAs("H:\Distributionslistor.xlsx")
 	$excelWorkbook.Close()
 	$excel.Quit()
@@ -113,4 +124,5 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	[System.GC]::Collect()
 	[System.GC]::WaitForPendingFinalizers()
 	Remove-Variable excel
+	Write-Host "Distributionslistor, med medlemmar, sparade i H:\Distributionslistor.xlsx"
 }

@@ -10,6 +10,7 @@
 .Parameter reconnectExchange
 	Läser om modulen för Exchange och gör en ny inloggning
 #>
+
 param (
 	[switch] $loadOnly,
 	[switch] $reconnectExchange

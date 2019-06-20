@@ -1,12 +1,12 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Skapa behörighet för användaren att boka rum
-.PARAMETER id
-	id för den användare som ska ha behörigheten
-.PARAMETER Rum
-	Namn eller identitet på rummet som behörigheten ska skapas på
-.DESCRIPTION
+.Description
 	Lägg in bokningsbehörighet för en användare till ett rum. Skriptet används när synken från ändring i Supportpanelen inte har gått över till Exchange.
+.Parameter id
+	id för den användare som ska ha behörigheten
+.Parameter Rum
+	Namn eller identitet på rummet som behörigheten ska skapas på
 .Example
 	Add-SD_RumBokaEnAnvändare -id "ABCD" -Rum "RumA"
 	Skapar behörighet för användare ABCD att skapa bokningar i rum RumA

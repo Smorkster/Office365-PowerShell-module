@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Hämta ägare av funktionsbrevlåda
-.PARAMETER Funktionsbrevlåda
+.Description
+	Hämtar ägaren av funktionsbrevlåda angiven som parameter
+.Parameter Funktionsbrevlåda
 	Namn eller mailadress för funktionsbrevlådan
 .Example
 	Get-SD_FunkÄgare -Funktionsbrevlåda "Funklåda"

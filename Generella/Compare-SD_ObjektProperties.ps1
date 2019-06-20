@@ -1,9 +1,22 @@
-function Compare-SD_ObjektProperties {
-	Param(
+<#
+.Synopsis
+	JÃ¤mfÃ¶r tvÃ¥ PowerShell-objekt
+.Description
+	JÃ¤mfÃ¶r alla parametrar i tvÃ¥ objekt och listar sedan varje parameter som inte Ã¤r lika mellan objekten
+.Parameter ReferenceObject
+	Ett objekt som ska jÃ¤mfÃ¶ras
+.Parameter DifferenceObject
+	Ett objekt som ska jÃ¤mfÃ¶ras
+.Example
+	Compare-SD_ObjektProperties -ReferenceObject $ObjOne -DifferenceObject $ObjTwo
+#>
+function Compare-SD_ObjektProperties
+{
+	param(
 	[Parameter(Mandatory=$true)]
-		[PSObject]$ReferenceObject,
+		[PSObject] $ReferenceObject,
 	[Parameter(Mandatory=$true)]
-		[PSObject]$DifferenceObject
+		[PSObject] $DifferenceObject
 	)
 
 	$objprops = $ReferenceObject | Get-Member -MemberType Property, NoteProperty | % Name
@@ -11,9 +24,11 @@ function Compare-SD_ObjektProperties {
 	$objprops = $objprops | Sort | Select -Unique
 	$diffs = @()
 
-foreach ($objprop in $objprops) {
+	foreach ($objprop in $objprops)
+	{
 		$diff = Compare-Object $ReferenceObject $DifferenceObject -Property $objprop
-		if ($diff) {
+		if ($diff)
+		{
 			$diffprops = @{
 				PropertyName=$objprop
 				RefValue=($diff | ? {$_.SideIndicator -eq '<='} | % $($objprop))
@@ -22,5 +37,9 @@ foreach ($objprop in $objprops) {
 			$diffs += New-Object PSObject -Property $diffprops
 		}
 	}
-	if ($diffs) {return ($diffs | Select PropertyName,RefValue,DiffValue)}
+
+	if ($diffs)
+	{
+		return ($diffs | Select PropertyName,RefValue,DiffValue)
+	}
 }

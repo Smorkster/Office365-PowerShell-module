@@ -1,11 +1,11 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lägger till/tar bort användare för behörighet att boka i ett eller flera rum.
-.PARAMETER Remove
-	Parameter för att ange ifall användarna ska tas bort.
-.DESCRIPTION
+.Description
 	En batch-körning för att lägga in eller ta bort flera användare i flera rum. Användarna och rummen läses in från två filer som öppnas i början av skriptet.
-	Varje användare från AddUserToRoomBookUsers.txt läggs in i varje rum AddUserToRoomBookGroups.txt
+	Varje användare från filen AddUserToRoomBookUsers.txt läggs in i varje rum från filen AddUserToRoomBookGroups.txt
+.Parameter Remove
+	Parameter för att ange ifall användarna ska tas bort.
 .Example
 	Add-SD_RumBokaFleraAnvändare
 	Lägger in varje användare i varje rum

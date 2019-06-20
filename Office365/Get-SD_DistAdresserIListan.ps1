@@ -1,12 +1,15 @@
 <#
-.SYNOPSIS
-	Hämtar alla adresser i en distributionslista
-.PARAMETER Distlista
+.Synopsis
+	Hämtar adresser i en distributionslista
+.Description
+	Hämtar samtliga adresser registrerade i en distributionslista. Ifall angivet, hämtas enbart de adresser som tillhör personer utanför organisationen.
+	Adresserna kan, om angivet, exporteras till en Excel-fil, som då sparas på H:.
+.Parameter Distlista
 	Namn på distributionslistan
-.PARAMETER EndastExterna
+.Parameter EndastExterna
 	Används för att enbart hämta de externa adresserna i distributionslistan
-.PARAMETER Exportera
-	Anger ifall datan ska exporteras till en CSV-fil
+.Parameter Exportera
+	Anger ifall datan ska exporteras till en Excel-fil
 .Example
 	Get-SD_DistAdresserIListan -Distlista "Distlista"
 	Hämtar alla adresser i distributionslistan Distlista, dvs alla som ska ta emot mail som skickas till distributionslistan
@@ -40,37 +43,52 @@ function Get-SD_DistAdresserIListan
 
 		if($Exportera)
 		{
-			$export = @()
-			$members | % {$export += [pscustomobject]@{"Namn"=$_.DisplayName; "Mail"=$_.PrimarySMTPAddress}}
-			$ExcelObject=New-Object -ComObject Excel.Application
-			$WorkBook=$ExcelObject.WorkBooks.Add(1)
-			$WorkSheet=$WorkBook.WorkSheets.Item(1)
-			$ExcelObject.Visible=$false
-			$ExcelObject.DisplayAlerts = $false
-			$row = 2
-			
-			$WorkSheet.Cells.Item(1, 'A').Value2 = "Namn"
-			$WorkSheet.Cells.Item(1, 'B').Value2 = "Mail"
-			foreach($a in $export)
+			if ($members.Count -eq 0)
 			{
-				$WorkSheet.Cells.Item($row, 'A').Value2 = $a.Namn
-				$WorkSheet.Cells.Item($row, 'B').Value2 = $a.Mail
+				Write-Host "Inga användare att exportera"
+			} else {
+				$excel = New-Object -ComObject Excel.Application
+				$excel.Visible = $false
+				$excel.DisplayAlerts = $false
+				$excelWorkbook = $excel.WorkBooks.Add(1)
+				$excelWorksheet = $excelWorkbook.WorkSheets.Item(1)
+
+				$row = 1
+				$excelWorksheet.Cells.Item($row, 1) = "Distributionslista"
+				$excelWorksheet.Cells.Item($row, 1).Font.Bold = $true
+				$excelWorksheet.Cells.Item($row, 2) = $dl.DisplayName
+				$row = $row + 2
+				$excelWorksheet.Cells.Item($row, 1) = "Namn"
+				$excelWorksheet.Cells.Item($row, 2) = "Mailadress"
 				$row++
+
+				$memberArray = @()
+				$memberMailArray = @()
+				foreach($member in $members)
+				{
+					$memberArray += $member.DisplayName
+					$memberMailArray += $member.PrimarySMTPAddress
+				}
+
+				Set-Clipboard -Value $memberArray | Out-Null
+				$excelWorksheet.Cells.Item($row, 1).PasteSpecial() | Out-Null
+				Set-Clipboard -Value $memberMailArray | Out-Null
+				$excelWorksheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
+
+				$excelWorksheet.UsedRange.EntireColumn.autofit() | Out-Null
+
+				$excelWorkbook.SaveAs("H:\Medlemmar i distributionslista '$Distlista'.xlsx")
+				$excel.WorkBooks.Close()
+				$excel.Quit()
+				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorksheet) | Out-Null
+				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorkbook) | Out-Null
+				[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
+				[System.GC]::Collect()
+				[System.GC]::WaitForPendingFinalizers()
+
+				Write-Host "$($members.Count) medlemar från distributionslista '$dl', har exporterats till:"
+				Write-Host "H:\Medlemmar i distributionslista '$Distlista'.xlsx" -Foreground Green
 			}
-			$WorkSheet.UsedRange.EntireColumn.autofit() > $null
-			$WorkSheet.ListObjects.Add(1, $WorkSheet.UsedRange, 0, 1) | Out-Null
-
-			$WorkBook.SaveAs("H:\Medlemmar i distributionslista '$Distlista'.xlsx")
-			$ExcelObject.WorkBooks.Close()
-			$ExcelObject.Quit()
-			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($WorkSheet) | Out-Null
-			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($WorkBook) | Out-Null
-			[System.Runtime.Interopservices.Marshal]::ReleaseComObject($ExcelObject) | Out-Null
-			[System.GC]::Collect()
-			[System.GC]::WaitForPendingFinalizers()
-
-			Write-Host "$($row-2) medlemar från distributionslista '$dl', har exporterats till:"
-			Write-Host "H:\Medlemmar i distributionslista '$Distlista'.xlsx" -Foreground Green
 		} else {
 			$members | ft DisplayName, PrimarySMTPAddress
 		}

@@ -1,6 +1,8 @@
 <#
 .Synopsis
-	Hämta alla Funktionsbrevlådor en användare är markerad som ägare för
+	Hämta funktionsbrevlådor användare är ägare för
+.Description
+	Hämtar alla funktionsbrevlådor som en användare har registrerats som ägare för
 .Parameter id
 	Användarens id
 .Example

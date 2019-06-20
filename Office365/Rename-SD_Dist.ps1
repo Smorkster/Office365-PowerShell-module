@@ -1,16 +1,16 @@
 <#
-.SYNOPSIS
+.Synopsis
 	DÃ¶p om en distributionslista
-.PARAMETER OldName
-	Det nuvarande namnet pÃ¥ distributionslistan
-.PARAMETER NewName
-	Det nya namnet pÃ¥ distributionslistan. MÃ¥ste fÃ¶lja nuvarande namnstandard.
-.PARAMETER OldEmail
-	Den gamla mailadressen fÃ¶r distributionslistan
-.PARAMETER NewEmail
-	Den nya mailadressen fÃ¶r distributionslistan. MÃ¥ste fÃ¶lja nuvarande namnstandard.
-.DESCRIPTION
+.Description
 	DÃ¶per om en distributionslista och byter mailadress. Namn och adress mÃ¥ste fÃ¶lja namnstandarden. Ingen kontroll av detta gÃ¶rs dock.
+.Parameter OldName
+	Det nuvarande namnet pÃ¥ distributionslistan
+.Parameter NewName
+	Det nya namnet pÃ¥ distributionslistan. MÃ¥ste fÃ¶lja nuvarande namnstandard.
+.Parameter OldEmail
+	Den gamla mailadressen fÃ¶r distributionslistan
+.Parameter NewEmail
+	Den nya mailadressen fÃ¶r distributionslistan. MÃ¥ste fÃ¶lja nuvarande namnstandard.
 .Example
 	Rename-SD_Dist -OldName "OldName" -NewName "NewName" -OldEmail "oldname@test.com" -NewEmail "newname@test.com"
 	DÃ¶per om distributionslistan OldName och ger den det nya namnet NewName samt byter mailadress frÃ¥n oldname@test.com till newname@test.com

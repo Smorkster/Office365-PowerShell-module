@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Hämta ägare av AD-grupp
-.PARAMETER GruppNamn
+.Description
+	Hämtar ägare av en AD-grupp från AD
+.Parameter GruppNamn
 	Namn på AD-grupp
 .Example
 	Get-SD_ÄgareADGrupp -GruppNamn "gruppnamn"

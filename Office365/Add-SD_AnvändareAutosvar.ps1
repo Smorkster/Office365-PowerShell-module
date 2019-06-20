@@ -1,18 +1,19 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lägger till ett autosvarsmeddelande
-.PARAMETER id
-	id för användaren
-.PARAMETER Meddelande
-	Text som ska stå i autosvarsmeddelandet
-.PARAMETER Startdatum
-	Startdatum för när autosvarsmeddelande ska börja gälla
-.PARAMETER Slutdatum
-	Slutdatum för när autosvarsmeddelande ska sluta gälla
-.DESCRIPTION
-	Lägger in ett autosvarsmeddelande på avsedd användare mellan start- och slutdatum. Giltiga datum är inte krav.
+.Description
+	Lägger in ett autosvarsmeddelande på avsedd användare mellan start- och slutdatum. Datum är inte krav. Skulle datum saknas vid körning, är meddelandet aktivt tills det manuellt inaktiveras.
 	För att kunna lägga in meddelandet, krävs fullständig behörighet på mailkontot. Detta läggs på i början av skriptet och tas bort när meddelandet är inlagt.
-.Example Add-SD_AnvändareAutosvar -id "ABCD" -Meddelande "Test" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
+.Parameter id
+	id för användaren
+.Parameter Meddelande
+	Text som ska stå i autosvarsmeddelandet
+.Parameter Startdatum
+	Startdatum för när autosvarsmeddelande ska börja gälla
+.Parameter Slutdatum
+	Slutdatum för när autosvarsmeddelande ska sluta gälla
+.Example
+	Add-SD_AnvändareAutosvar -id "ABCD" -Meddelande "Test" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
 	Sätter meddelande "Test" på konto "ABCD" att vara aktivt mellan 1970-01-01 och 1970-01-02
 #>
 

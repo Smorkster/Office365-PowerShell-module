@@ -1,12 +1,12 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Verifiera om användare har fått EMS-licens.
-.PARAMETER SökvägTillFil
+.Description
+	Lista över användare läses in från angiven Excel-fil, varje användare kontrolleras sedan ifall de har blivit tilldelade EMS-licens
+.Parameter SökvägTillFil
 	Ange sökväg till filen med användarna
-.SYNTAX
-	Confirm-SD_AnvändareEMSLicenserFrånExcelLista -SökvägTillFil <Sökväg>
-.DESCRIPTION
-	Lista över användare hämtas från Excel-fil angiven av användare.
+.Example
+	Confirm-SD_AnvändareEMSLicenserFrånExcelLista -SökvägTillFil H:\fil.xlsx
 #>
 
 function Confirm-SD_AnvändareEMSLicenserFrånExcelLista
@@ -26,25 +26,25 @@ function Confirm-SD_AnvändareEMSLicenserFrånExcelLista
 	#region Readfile
 		Write-Host "Läser Excel-fil..." -Foreground Cyan -nonewline
 		$column=1
-		$objExcel = New-Object -ComObject Excel.Application
-		$workbook = $objExcel.Workbooks.Open($SökvägTillFil)
-		$sheet = $workbook.Worksheets.Item("Blad1")
-		$objExcel.Visible = $false
-		for(;$column -le $($sheet.UsedRange.Columns).Count-1;$column++)
+		$excel = New-Object -ComObject Excel.Application
+		$excelWorkbook = $excel.Workbooks.Open($SökvägTillFil)
+		$excelWorksheet = $excelWorkbook.Worksheets.Item("Blad1")
+		$excel.Visible = $false
+		for(;$column -le $($excelWorksheet.UsedRange.Columns).Count-1;$column++)
 		{
-			if($testarrayid -contains $sheet.Cells.Item(1, $column).Text)
+			if($testarrayid -contains $excelWorksheet.Cells.Item(1, $column).Text)
 			{
 				break
 			}
 		}
 
-		for ($i=1; $i -le $($sheet.UsedRange.Rows).Count-1; $i++)
+		for ($i=1; $i -le $($excelWorksheet.UsedRange.Rows).Count-1; $i++)
 		{
-			$users.Add($sheet.Cells.Item($i+1, $column).Text) > $null
+			$users.Add($excelWorksheet.Cells.Item($i+1, $column).Text) > $null
 		}
 		#Close Excel-file
-		$workbook.Close()
-		$objExcel.quit()
+		$excelWorkbook.Close()
+		$excel.quit()
 	#endregion Readfile
 
 	#region CheckUsers
@@ -74,7 +74,7 @@ function Confirm-SD_AnvändareEMSLicenserFrånExcelLista
 	$notfound | fl
 	Write-Host "`nAntal kontrollerade:" $ticker "Antal som saknar EMS:" $need
 
-	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($sheet) | Out-Null
-	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($workbook) | Out-Null
-	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($objExcel) | Out-Null
+	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorksheet) | Out-Null
+	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excelWorkbook) | Out-Null
+	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
 }

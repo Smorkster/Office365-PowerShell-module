@@ -1,8 +1,8 @@
 <#
-.SYNOPSIS
-	Hitta vilka Azure-grupper inom organisationen som inte är medlemmar i grupp för Supportpanelen.
-.DESCRIPTION
-	Hittar alla grupper i Azure, inom vald organisation, som inte har lagts in som medlem i relaterad grupp för Supportpanelen. Val av grupp görs i början av skriptet genom en numrerad lista.
+.Synopsis
+	Sök efter Azure-grupper för angiven organisation som inte är medlemmar i grupp för Supportpanelen.
+.Description
+	Hittar alla grupper i Azure, inom angiven organisation, som inte har lagts in som medlem i relaterad grupp för Supportpanelen. Val av grupp görs i början av skriptet genom en numrerad lista.
 #>
 
 function Get-SD_GrupperEjBundnaTillSupportpanelen

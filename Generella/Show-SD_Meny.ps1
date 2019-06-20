@@ -17,13 +17,13 @@ function Show-SD_Meny
 		[ValidateSet('Användare','Funk','Dist','Gem','Resurs','Rum')]
 		[string] $KommandoMål
 	)
-	
+
 	DynamicParam
 	{
 		$ParamAttrib = New-Object System.Management.Automation.ParameterAttribute
 		$AttribColl = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
 		$AttribColl.Add($ParamAttrib)
-		$AttribColl.Add((New-Object  System.Management.Automation.ValidateSetAttribute($global:commandTypes)))
+		$AttribColl.Add((New-Object  System.Management.Automation.ValidateSetAttribute($script:commandTypes)))
 		$RuntimeParam = New-Object System.Management.Automation.RuntimeDefinedParameter('KommandoTyp',  [string], $AttribColl)
 
 		$RuntimeParamDic = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary

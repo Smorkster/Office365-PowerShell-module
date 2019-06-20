@@ -1,15 +1,15 @@
 <#
 .Synopsis
 	Lägger till/tar bort full behörighet till ett konto
+.Description
+	Skapar FullAccess-behörighet för administratör att få tillgång till användares brevlådor.
+	När behörighet skapats, sparas användarens mailadress i en fil för att underlätta rensning av behörigheter.
 .Parameter Mailadress
 	Mailadress för användaren vars konto behörigheten ska kopplas till
 .Parameter id
 	id för användare vars konto behörigheten ska kopplas till
 .Parameter Rensa
 	Tar bort behörighet till alla konton där full access har lagts till. Läsning görs från fil.
-.Description
-	Skapar FullAccess-behörighet för administratör att få tillgång till användares brevlådor.
-	När behörighet skapats, sparas användarens mailadress i en fil för att underlätta rensning av behörigheter.
 .Example
 	Edit-SD_AdminBehörigheter -Mailadress "test@test.com"
 	Lägger till FullAccess-behörighet till konto med mailadress test@test.com

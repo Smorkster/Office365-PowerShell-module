@@ -1,7 +1,7 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lägger till och tar bort mailadresser till en distributionslista
-.DESCRIPTION
+.Description
 	Läser in en CSV-fil innehållandes mailadresser, namn på distributionslista samt vad som ska göras.
 	När skriptet startar, öppnas filen i Excel så att den kan editeras. När filen är sparad, fortsätter skriptet efter användaren har tryck på Enter.
 	Om en extern mailadress inte finns i Exchange, skapas ett kontakt-objekt med adressen. Adressen läggs sedan till eller tas bort från distributionslistan. Om det är en intern mailadress som inte finns, hoppas adressen över.
@@ -65,17 +65,9 @@ function Update-SD_Distributionslista
 		#region Add user
 			$emailToAdd = $_.Email.Trim()
 			#region Create contact object
-			if ($emailToAdd -match "@test.com")
+			if((Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-Contact -Identity $emailToAdd -ErrorAction SilentlyContinue))
 			{
-				if((Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-Contact -Identity $emailToAdd -ErrorAction SilentlyContinue))
-				{
-					Write-Host "`tSLL-adress finns i Exchange." -Foreground Green
-				} else {
-					Write-Host "`tSLL-adress finns inte i Exchange.`nHoppar över.`n" -Foreground Red
-					return
-				}
-			} elseif (Get-MailContact -Identity $emailToAdd -ErrorAction SilentlyContinue) {
-				Write-Host "`tKontaktobjekt finns i Exchange" -Foreground Green
+				Write-Host "`tAdress finns i Exchange." -Foreground Green
 			} else {
 				Write-Host "`tInget kontaktobjekt hittades i Exchange, skapar" -Foreground Cyan
 				New-MailContact -Name $emailToAdd -ExternalEmailAddress $emailToAdd | Out-Null

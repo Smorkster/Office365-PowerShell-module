@@ -1,16 +1,16 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Döp om en funktionsbrevlåda
-.PARAMETER OldName
-	Det nuvarande namnet på funktionsbrevlådan
-.PARAMETER NewName
-	Det nya namnet på funktionsbrevlådan. Måste följa nuvarande namnstandard.
-.PARAMETER OldEmail
-	Den gamla mailadressen för funktionsbrevlådan
-.PARAMETER NewEmail
-	Den nya mailadressen för funktionsbrevlådan. Måste följa nuvarande namnstandard.
-.DESCRIPTION
+.Description
 	Döper om en funktionsbrevlåda och byter mailadress. Namn och adress måste följa namnstandarden. Ingen kontroll av detta görs dock.
+.Parameter OldName
+	Det nuvarande namnet på funktionsbrevlådan
+.Parameter NewName
+	Det nya namnet på funktionsbrevlådan. Måste följa nuvarande namnstandard.
+.Parameter OldEmail
+	Den gamla mailadressen för funktionsbrevlådan
+.Parameter NewEmail
+	Den nya mailadressen för funktionsbrevlådan. Måste följa nuvarande namnstandard.
 .Example
 	Rename-SD_Funk -OldName "OldName" -NewName "NewName" -OldEmail "oldname@test.com" -NewEmail "newname@test.com"
 	Döper om funktionsbrevlådan OldName och ger den det nya namnet NewName samt byter mailadress från oldname@test.com till newname@test.com
@@ -25,7 +25,7 @@ function Rename-SD_Funk
 		[string] $NewName,
 	[Parameter(Mandatory=$true)]
 		[string] $OldEmail,
-	[Parameter(Mandatory=$true)]
+		[Parameter(Mandatory=$true)]
 		[string] $NewEmail
 	)
 

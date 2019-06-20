@@ -1,9 +1,11 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Anslut till tjänsterna
+.Description
+	Ansluter till alla tre online-tjänsterna för Office365, Exchange, AzureAD samt MSonline. Om anslutningen till Exchange har tappats p.g.a. timeout, kan skriptet användas för att återansluta.
 .Parameter reconnectExchange
 	Återansluter till Exchange.
-	Stänger nuvarande PSSession, skapar en ny och ansluter. Används när anslutningen till Exchange tappats vid inaktivitet
+	Stänger nuvarande PSSession, skapar en ny och ansluter
 #>
 
 function Connect-SD_ToServices

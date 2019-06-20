@@ -1,6 +1,8 @@
 <#
 .Synopsis
 	Kopiera bokningsbehörigheter från ett rum till ett annat
+.Description
+	Hämtar vilka personer som har behörighet att skapa bokningar för ett rum och skapar ny behörighet för bokning för ett annat rum. Behörigheten sätts både i Azure, med BookInPolicy samt med behörighet 'LimitedDetails' på kalendern
 .Parameter RumKopieraFrån
 	Visningsnamn på det rum som behörigheter ska kopieras från
 .Parameter RumKopieraTill

@@ -45,38 +45,30 @@ function Update-SD_DistErsättAllaMedlemmar
 		Remove-DistributionGroupMember -Identity $distList.Identity -Member $member.PrimarySMTPAddress -Confirm:$false
 		$ticker++
 	}
+	Write-Progress -Activity "Tar bort medlem" -Completed
 
 	$ticker = 1
 	$newMembers | foreach {
-		Write-Host "Lägger in ny medlem $ticker av $numberOfEntries"
 		$ticker = $ticker + 1
-
 		$emailToAdd = $_.Trim()
+		Write-Host "Lägger in $emailToAdd"
+
 		#region Create contact object
-		if ($emailToAdd -match "@test.com")
+		if((Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-Contact -Identity $emailToAdd -ErrorAction SilentlyContinue))
 		{
-			if ( Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue )
-			{
-				Write-Host "Maillåda för $emailToAdd finns." -Foreground Green
-			} else {
-				Write-Host "Ingen maillåda för $emailToAdd finns.`nHoppar över.`n" -Foreground Red
-				return
-			}
-		} elseif ( Get-MailContact -Identity $emailToAdd -ErrorAction SilentlyContinue ) {
-			Write-Host "Kontakt" $emailToAdd "finns i Exchange" -Foreground Green
+			Write-Host "`tAdress finns i Exchange." -Foreground Green
 		} else {
-			Write-Host "Ingen kontakt för" $emailToAdd "hittades i Exchange, skapar" -Foreground Cyan
+			Write-Host "`tInget kontaktobjekt hittades i Exchange, skapar" -Foreground Cyan
 			New-MailContact -Name $emailToAdd -ExternalEmailAddress $emailToAdd | Out-Null
 			Set-MailContact -Identity $emailToAdd -HiddenFromAddressListsEnabled $true | Out-Null
-			Write-Host "Färdig skapa kontakt." -Foreground Green
+			Write-Host "`tKontaktobjekt skapat." -Foreground Green
 		}
 		#endregion Create contact object
 
-		Write-Host "Lägger till" $emailToAdd "i grupp" $distList.DisplayName -Foreground Cyan
 		try { Add-DistributionGroupMember -Identity $distList.Identity -Member $emailToAdd -ErrorAction Stop }
 		catch {
 			if( $_.CategoryInfo.Reason -eq "MemberAlreadyExistsException") {
-				Write-Host $emailToAdd "finns redan i grupp" $distList.DisplayName "`n"-Foreground Red
+				Write-Host "Finns redan i distributionslistan"-Foreground Red
 			}
 		}
 

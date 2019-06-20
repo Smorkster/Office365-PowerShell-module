@@ -1,10 +1,12 @@
 <#
-.SYNOPSIS
-	Hämta lista över administratörer för en funktionsbrevlåda
-.PARAMETER Funktionsbrevlåda
+.Synopsis
+	Lista administratörer för en funktionsbrevlåda
+.Description
+	Hämtar alla administratörer för en funktionsbrevlåda
+.Parameter Funktionsbrevlåda
 	Namn/mailadress för funktionsbrevlådan
-.SYNTAX
-	Get-SD_FunkAdmins -Funktionsbrevlåda <Namn/mailadress>
+.Example
+	Get-SD_FunkAdmins -Funktionsbrevlåda "Funk 1"
 #>
 
 function Get-SD_FunkAdmins

@@ -1,10 +1,10 @@
 <#
-.SYNOPSIS
-	Lista grupper en dator Ã¤r medlem av
-.PARAMETER DatorNamn
+.Synopsis
+	Lista AD-grupper fÃ¶r en dator
+.Description
+	HÃ¤mtar AD-objektet fÃ¶r dator och lista de grupper som dator Ã¤r medlem i
+.Parameter DatorNamn
 	Namn pÃ¥ dator att undersÃ¶ka
-.DESCRIPTION
-	HÃ¤mtar AD-objektet fÃ¶r datornamnet och listar de gruuper som har kopplats
 .Example
 	Get-SD_DatorsGruppmedlemskap -DatorNamn "Dat1"
 #>
@@ -18,6 +18,9 @@ function Get-SD_DatorsGruppmedlemskap
 
 	try
 	{
+		Write-Host "Datorn " -NoNewline
+		Write-Host $DatorNamn -Foreground Cyan
+		Write-Host " Ã¤r medlem i fÃ¶ljande AD-grupper:"
 		(Get-ADComputer -Identity $DatorNamn -Properties *).MemberOf | % {($_ -split ',')[0]} | % {$_.Substring(3)}
 	} catch {
 		Write-Host "Dator med namn $DatorNamn finns inte i AD"

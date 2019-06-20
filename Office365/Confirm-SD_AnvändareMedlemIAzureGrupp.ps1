@@ -1,14 +1,14 @@
 <#
-.SYNOPSIS
-	Verifiera ifall en användare är medlem i en Azure-grupp
-.PARAMETER MailAnvändare
+.Synopsis
+	Är användare medlem i en Azure-grupp
+.Description
+	Hämtar användaren från Azure och kontrollerar om grupp finns med i listan över medlemskap kopplat till användaren
+.Parameter MailAnvändare
 	Användarens mailadress
-.PARAMETER GruppNamn
+.Parameter GruppNamn
 	Namn på gruppen i fråga
-.SYNTAX
+.Example
 	Confirm-SD_AnvändareMedlemIAzureGrupp -MailAnvändare <Mailadress> -GruppNamn <Namn på Azure-grupp>
-.DESCRIPTION
-	Söker användaren och kontrollerar om GruppNamn finns med i listan över medlemskap kopplat till användaren
 #>
 
 function Confirm-SD_AnvändareMedlemIAzureGrupp

@@ -57,11 +57,11 @@ function FillChangelog
 
 function FillTypes
 {
-	$global:commandTypes = @()
-	$global:commandTypes = $ToExport | % {$_ -split ("-") | select -First 1} | sort | select -Unique
+	$script:commandTypes = @()
+	$script:commandTypes = $ToExport | % {$_ -split ("-") | select -First 1} | sort | select -Unique
 }
 
-$ModuleFunctions = Get-ChildItem -Path "$PSScriptRoot\Servicedesk*" | ? {$_.Mode -match "d"} | % { Get-ChildItem $_ } | ? {$_.Name -like "*.ps1"}
+$ModuleFunctions = Get-ChildItem -Path "$PSScriptRoot\Servicedesk*" | ? { $_.Mode -match "d" } | % { Get-ChildItem $_ } | ? { $_.Name -like "*.ps1" }
 $ToExport = $ModuleFunctions | Select-Object -ExpandProperty BaseName
 
 foreach ($import in $ModuleFunctions)

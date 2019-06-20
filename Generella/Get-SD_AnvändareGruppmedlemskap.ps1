@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lista alla grupper en användare är medlem i
-.PARAMETER id
+.Description
+	Listar alla AD-grupper en användare är medlem i
+.Parameter id
 	Användarens id
 .Example
 	Get-SD_GrupperAnvändareÄrMedlemI -id "ABCD"
@@ -18,7 +20,7 @@ function Get-SD_AnvändareGruppmedlemskap
 	try {
 		Write-Host $user.GivenName $user.Surname -Foreground Magenta -NoNewline
 		Write-Host " är medlem i grupperna:"
-		Get-AzureADUser -SearchString $user.EmailAddress | Get-AzureADUserMembership | sort DisplayName | ft DisplayName
+		Get-AzureADUserMembership -ObjectId (Get-MsolUser -UserPrincipalName $user.EmailAddress).Objectid | sort DisplayName | ft DisplayName
 	} catch {
 		Write-Host "`nAnvändaren finns inte i Exchange"
 	}

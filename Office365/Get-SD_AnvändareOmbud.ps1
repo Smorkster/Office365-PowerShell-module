@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Hämtar alla ombud för ett konto
-.PARAMETER id_Ägare
+.Description
+	Hämtar vilka andra användare som har fått behörighet som ombud för angiven användare. De listas sedan per typ av behörighet de har fått, t.ex. för inkorgen eller kalendern.
+.Parameter id_Ägare
 	id för ägaren av Outlook-kontot
 .Example
 	Get-SD_Ombud -id_Ägare "ABCD"

@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
-	Hämtar alla rum som lagts i en rumslista. Hittas flera med liknande namn, lista alla och användaren får ange rumslista
-.PARAMETER Rumslista
+.Synopsis
+	Hämtar alla rum i en rumslista
+.Description
+	Hämtar alla rum i angiven rumslista. Om det hittas flera rumslistor med namn som liknar vad som angivits, lista de och användaren får ange vilken rumslista som ska användas
+.Parameter Rumslista
 	Namn på rumslista att visa
 .Example
 	Get-SD_RumIRumslista -Rumslista "ListA"

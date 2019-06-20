@@ -1,7 +1,9 @@
 <#
-.SYNOPSIS
-	Hämtar angiven plats för ett rum, om det är angivet
-.PARAMETER Rumsnamn
+.Synopsis
+	Hämtar angiven plats för ett rum
+.Description
+	Hämtar registrerad plats för ett rum från Exchange
+.Parameter Rumsnamn
 	Namn på rummet
 .Example
 	Get-SD_RumPlats -Rumsnamn "RumA"

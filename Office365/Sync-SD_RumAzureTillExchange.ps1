@@ -1,8 +1,8 @@
 <#
 .Synopsis
-    Synka behörigheter för användare till rum. Från Azure till Exchange
+    Synka användares behörigheter till rum från Azure till Exchange
 .Description
-    Ifall en användare har fått behörighet skapad i en Azure-grupp för rum, men detta inte har blivit översynkat till Exchange, får vi lägga på behörigheten manuellt
+    Ifall en användare har fått behörighet skapad i en Azure-grupp för rum, men detta inte har blivit översynkat till Exchange, kan den läggas på manuellt
     Parameter Rumslista kan ta ett eller flera rum och loopar då igenom varje rum enskilt
 .Parameter Rum
     Namn på rum som ska synkroniseras

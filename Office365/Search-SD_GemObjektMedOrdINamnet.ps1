@@ -21,11 +21,13 @@
 	Search-SD_GemObjektMedOrdINamnet -SökOrd "test" -Typ 'Resurs'
 	Söker efter alla resurser, vars mailadress eller namn innehåller 'test'
 #>
-function Search-SD_GemObjektMedOrdINamnet {
+
+function Search-SD_GemObjektMedOrdINamnet
+{
 	param(
 	[Parameter(Mandatory=$true)]
 		[String] $SökOrd,
-	[ValidateSet('Funktionsbrevlåda', 'Distributionslista', 'Rum', 'Resurs')]
+	[ValidateSet('Funktionsbrevlåda', 'Distributionslista', 'Rum', 'Resurs', 'Exchange-kontaktobjekt')]
 	[Parameter(Mandatory=$true)]
 		[String] $Typ
 	)
@@ -44,6 +46,9 @@ function Search-SD_GemObjektMedOrdINamnet {
 	} elseif ($Typ -eq "Resurs") {
 		Write-Host "Söker efter resurser..." -Foreground Cyan
 		$list = Get-Mailbox -RecipientTypeDetails EquipmentMailbox -Identity "$SökOrd" -ErrorAction SilentlyContinue
+	} elseif ($Typ -eq "Exchange-kontaktobjekt") {
+		Write-Host "Söker efter kontaktobjekt..." -Foreground Cyan
+		$list = Get-Contact -Identity "*$SökOrd*" -ErrorAction SilentlyContinue
 	} else {
 		Write-Error "Felaktig söktyp angivet"
 	}
@@ -54,6 +59,10 @@ function Search-SD_GemObjektMedOrdINamnet {
 		Write-Host $($SökOrd -replace "\*","") -Foreground Cyan -NoNewLine
 		Write-Host " i namn eller mailadress"
 	} else {
-		$list | select DisplayName, PrimarySmtpAddress
+		if ($Typ -eq "Exchange-kontaktobjekt") {
+			$list | select DisplayName, WindowsEmailAddress
+		} else {
+			$list | select DisplayName, PrimarySmtpAddress
+		}
 	}
 }

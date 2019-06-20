@@ -1,3 +1,54 @@
+2019-06-20
+**********
+Add-SD_AnvändareAutosvar - Rättat dokumentationen
+Add-SD_AnvändareTillO365MigPilot - Rättat dokumentationen
+Add-SD_ResursTillGrupp - Rättat och utökat dokumentationen
+Add-SD_RumBokaEnAnvändare - Rättat och utökat dokumentationen
+Add-SD_RumBokaFleraAnvändare - Rättat och utökat dokumentationen
+Compare-SD_ObjektProperties - Rättat och utökat dokumentationen
+Confirm-SD_AnvändareEMSLicenserFrånExcelLista - Rättat och utökat dokumentationen
+Confirm-SD_AnvändareKontoStatus - Rättat och utökat dokumentationen
+Confirm-SD_AnvändareMedlemIAzureGrupp - Rättat och utökat dokumentationen
+Confirm-SD_AnvändareMedlemIFunktionsbrevlåda - Rättat och utökat dokumentationen
+Confirm-SD_AnvändaremsExchMailboxGuid - Rättat och utökat dokumentationen
+Confirm-SD_GemAzureSynkatTillExchange - Rättat och utökat dokumentationen
+Connect-SD_ToServices - Rättat och utökat dokumentationen
+Copy-SD_KopieraSkriptTillG - Stänger nu progressbar korrekt / Rättat och utökat dokumentationen
+Copy-SD_RumBehörighetFrånAnnatRum - Rättat och utökat dokumentationen
+Edit-SD_AdminBehörigheter - Rättat och utökat dokumentationen
+Get-SD_AnvändareGruppmedlemskap - Rättat och utökat dokumentationen / Rättat hämtningen av gruppmedlemskap
+Get-SD_AnvändareOmbud - Rättat och utökat dokumentationen
+Get-SD_AnvändareÄgareDistributionslistor - Rättat och utökat dokumentationen
+Get-SD_AnvändareÄgareFunktionsbrevlådor - Rättat och utökat dokumentationen
+Get-SD_DatorsGruppmedlemskap - Rättat och utökat dokumentationen / Ändrat utskrift för förtydligande
+Get-SD_DistAdresserIListan - Rättat och utökat dokumentationen / Skrivit om exporten till Excel
+Get-SD_DistExporteraFrånFleraTillExcel - Rättat och utökat dokumentationen / Skrivit om exporten till Excel
+Get-SD_DistMedlemmar - Rättat och utökat dokumentationen
+Get-SD_DistÄgare - Rättat och utökat dokumentationen
+Get-SD_ExporteraADAnvändare - Rättat dokumentationen / Exporterar nu till Excel
+Get-SD_FunkAdmins - Rättat och utökat dokumentationen
+Get-SD_FunkÄgare - Rättat och utökat dokumentationen
+Get-SD_GrupperEjBundnaTillSupportpanelen - Rättat och utökat dokumentationen
+Get-SD_RumBokningsbehörighet - Rättat och utökat dokumentationen / Skrivit om exporten till Excel
+Get-SD_RumExporteraFrånFleraTillExcel - Rättat och utökat dokumentationen / Skrivit om exporten till Excel
+Get-SD_RumIRumslista - Rättat och utökat dokumentationen
+Get-SD_RumPlats - Rättat och utökat dokumentationen
+Get-SD_Rumslistor - Rättat och utökat dokumentationen
+New-SD_Rumslista - Rättat och utökat dokumentationen
+Get-SD_ÄgareGaiaGrupp - Rättat och utökat dokumentationen
+Remove-SD_AnvändareIkonfoto - Rättat och utökat dokumentationen
+Rename-SD_Dist - Rättat och utökat dokumentationen
+Rename-SD_Funk - Rättat och utökat dokumentationen
+Rename-SD_Rum - Rättat och utökat dokumentationen
+Search-SD_AnvändareMessageTrace - Skrivit om exporten till Excel
+Search-SD_GemObjektMedOrdINamnet - Lagt till möjlighet att söka på kontaktobjekt i Exchange
+Set-SD_AnvändareAktiveraAzureInloggning - Rättat och utökat dokumentationen
+Set-SD_AnvändarePasswordNeverExpires - Rättat och utökat dokumentationen
+Sync-SD_RumAzureTillExchange - Rättat och utökat dokumentationen
+Update-SD_AnvändareBehörighetTillRum - Rättat och utökat dokumentationen
+Update-SD_DistErsättAllaMedlemmar - Stänger nu progressbar för borttag korrekt / Tog bort onödiga kontroller / Ändrat utskrift för tydligare läsning
+Update-SD_Distributionslista - Tog bort onödiga kontroller / Rättat dokumentationen
+
 2019-06-17
 **********
 ServicedeskPowerShell-Modul - Skapar nu lista över kommandotyper / Bröt ut Show-SD_Meny till eget skript

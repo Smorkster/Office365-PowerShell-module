@@ -1,14 +1,14 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Verifiera ifall användare är medlem i en funktionsbrevlåda
-.PARAMETER id
-	Mailadress till användaren
-.PARAMETER Funktionsbrevlåda
+.Description
+	Söker funktionsbrevlåda och kontrollerar sedan om användaren finns listad med behörighet
+.Parameter id
+	id för användaren
+.Parameter Funktionsbrevlåda
 	Namn/mailadress för funktionsbrevlådan
-.SYNTAX
-	Confirm-SD_AnvändareMedlemIFunktionsbrevlåda -id <id> -Funktionsbrevlåda <Namn/mailadress>
-.DESCRIPTION
-	Söker funktionsbrevlåda och kontrollerar sedan om användaren finns med i medlemslistan
+.Example
+	Confirm-SD_AnvändareMedlemIFunktionsbrevlåda -id "ABCD" -Funktionsbrevlåda "Funk 1"
 #>
 
 function Confirm-SD_AnvändareMedlemIFunktionsbrevlåda

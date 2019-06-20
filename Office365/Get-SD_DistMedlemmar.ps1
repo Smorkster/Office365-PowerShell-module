@@ -1,9 +1,9 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Lista alla medlemmar i en distributionslista
 .Description
 	HÃ¤mtar samtliga medlemmar av en distributionslista och listar dem sorterat i bokstavsordning efter namn
-.PARAMETER Distributionslista
+.Parameter Distributionslista
 	Namn pÃ¥ distributionslistan
 .Example
 	Get-SD_DistMedlemmar -Distributionslista "Distlista"

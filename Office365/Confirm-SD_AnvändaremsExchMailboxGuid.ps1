@@ -1,13 +1,13 @@
 <#
-.SYNOPSIS
+.Synopsis
 	Kontrollera ifall msExchMailboxGuid är tomt
-.PARAMETER id
-	id för användaren
-.SYNTAX
-	Confirm-SD_AnvändaremsExchMailboxGuid -id <id>
-.DESCRIPTION
+.Description
 	Kontrollera värdet på msExchMailboxGuid hos användaren.
-	Detta används då det inte skapas någon låda för användaren, trots synk
+	Detta används om det inte skapas någon låda för användaren, trots att synkronisering har utförts
+.Parameter id
+	id för användaren
+.Example
+	Confirm-SD_AnvändaremsExchMailboxGuid -id "ABCD"
 #>
 
 function Confirm-SD_AnvändaremsExchMailboxGuid
