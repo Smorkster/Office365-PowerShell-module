@@ -6,6 +6,7 @@
 .Parameter Funktionsbrevlåda
     Namn eller mailadress på funktionsbrevlådan
 #>
+
 function Sync-SD_FunkAzureTillExchange
 {
 	param(
@@ -53,10 +54,14 @@ function Sync-SD_FunkAzureTillExchange
 	#region GrantSendOnBehalfTo
 	foreach ($member in $members)
 	{
-		$name = (Get-ADUser ($_.ImmutableId -split "-")[1]).Name
-		Set-Mailbox -Identity $Funktionsbrevlåda -GrantSendOnBehalfTo @{Add=$name}
+		Set-Mailbox -Identity $Funktionsbrevlåda -GrantSendOnBehalfTo @{Add=$($member.UserPrincipalName)}
 	}
 	#endregion
+	if ($members.Count -gt 1)
+	{
+		Write-Host "Dessa har blivit synkade med fullbehörighet, samt behörighet att skicka:"
+		$members | select DisplayName, UserPrincipalName
+	}
 
 	#region Sync Read
 	$ticker = 1
@@ -72,4 +77,10 @@ function Sync-SD_FunkAzureTillExchange
 		$ticker++
 	}
 	#endregion
+
+	if ($members.Count -gt 1)
+	{
+		Write-Host "Dessa har blivit synkade med läsbehörighet:"
+		$members | select DisplayName, UserPrincipalName
+	}
 }

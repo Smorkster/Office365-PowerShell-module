@@ -2,7 +2,7 @@
 .Synopsis
 	Hitta vilken dator ett konto har blivit låst vid
 .Description
-	Söker igenom låsningsloggarna och listar alla datorer som ett konto har blivit låst och listar dem
+	Söker igenom låsningsloggarna och listar alla datorer som ett konto har blivit låst vid och listar dem
 .Parameter id
 	ID för den användare som har fått sitt konto låst
 .Example
@@ -16,7 +16,7 @@ function Get-SD_DatorerADKontoLåstsVid
 		[String] $id
 	)
 
-	$result = Get-ChildItem G:\\LockedOut_Log -Filter '*.txt' | cat | ? {($_ -split '\s+')[2] -like "*$id*"} | % {($_ -split '\s+')[0] + " " + ($_ -split '\s+')[1] + " " + ($_ -split '\s+')[3]}
+	$result = Get-ChildItem G:\\LockedOut_Log -Filter '*.txt' | cat | ? {($_ -split '\s+')[2] -like "*$id*"} | % {($_ -split '\s+')[0] + " " + ($_ -split '\s+')[1] + " " + ($_ -split '\s+')[3]} | sort
 	
 	if($result.Count -eq 0)
 	{

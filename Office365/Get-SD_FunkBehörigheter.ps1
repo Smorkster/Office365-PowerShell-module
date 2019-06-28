@@ -41,7 +41,6 @@ function Get-SD_FunkBehörigheter
 	$fullExchange = $ExchangeMembers | ? {$_.AccessRights -like "*FullAccess*"}
 	$readExchange = $ExchangeMembers | ? {$_.AccessRights -like "*ReadPermission*"}
 
-	
 	if ( $fullAzure.Count -eq 0 )
 	{
 		Write-Host "Inga användare har full behörighet i Azure" -Foreground Cyan
@@ -57,8 +56,10 @@ function Get-SD_FunkBehörigheter
 		Write-Host "Inga användare har full behörighet i Exchange" -Foreground Cyan
 	} else {
 		Write-Host "Dessa har full behörighet i Exchange" -Foreground Cyan
+		$fullExchange | sort User | select -ExpandProperty User
+		Write-Host "`nDessa har även behörighet att skicka mail" -Foreground Cyan
+		Get-Mailbox -Identity $Funktionsbrevlåda | select -ExpandProperty GrantSendOnBehalfTo | sort
 	}
-	$fullExchange | sort User | select -ExpandProperty User
 
 	Write "`n"
 
@@ -67,8 +68,8 @@ function Get-SD_FunkBehörigheter
 		Write-Host "Inga användare har läsbehörighet i Azure" -Foreground Cyan
 	} else {
 		Write-Host "Dessa har läsbehörighet i Azure" -Foreground Cyan
+		$readAzure | sort UserPrincipalName | select -ExpandProperty UserPrincipalName
 	}
-	$readAzure | sort UserPrincipalName | select -ExpandProperty UserPrincipalName
 
 	Write "`n"
 
@@ -77,6 +78,6 @@ function Get-SD_FunkBehörigheter
 		Write-Host "Inga användare har läsbehörighet i Exchange" -Foreground Cyan
 	} else {
 		Write-Host "Dessa har läsbehörighet i Exchange" -Foreground Cyan
+		$readExchange | sort User | select -ExpandProperty User
 	}
-	$readExchange | sort User | select -ExpandProperty User
 }

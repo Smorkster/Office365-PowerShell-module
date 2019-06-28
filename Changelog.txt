@@ -1,3 +1,12 @@
+2019-06-28
+**********
+Get-SD_DatorerGAIAKontoLåstsVid - Resultat sorteras nu
+Get-SD_DistExporteraFrånFleraTillExcel - Testar nu om grupp finns, innan skriptet fortsätter
+Get-SD_FunkBehörigheter - Skriver nu även ut GrantSendOnBehalfTo
+Search-SD_GemObjektMedOrdINamnet - Rättade sökvilkoren för Exchange-kontaktobjekt / Sorterar nu resultatet
+Set-SD_DistÖppnaFörExterna - Ny. Öppna distributionslista för extern kontakt
+Sync-SD_FunkAzureTillExchange - Ändrat hur GrantSendOnBehalfTo tilldelas / Skriver nu ut lista över vilka som synkroniserats
+
 2019-06-20
 **********
 Add-SD_AnvändareAutosvar - Rättat dokumentationen

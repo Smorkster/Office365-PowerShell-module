@@ -20,6 +20,9 @@
 .Example
 	Search-SD_GemObjektMedOrdINamnet -SökOrd "test" -Typ 'Resurs'
 	Söker efter alla resurser, vars mailadress eller namn innehåller 'test'
+.Example
+	Search-SD_GemObjektMedOrdINamnet -SökOrd "test" -Typ 'Exchange-kontaktobjekt'
+	Söker efter kontaktobjekt i Exchange, t.ex. externa användare eller distributionslistor skapade utifrån EK, vars mailadress eller namn innehåller 'test'
 #>
 
 function Search-SD_GemObjektMedOrdINamnet
@@ -48,7 +51,7 @@ function Search-SD_GemObjektMedOrdINamnet
 		$list = Get-Mailbox -RecipientTypeDetails EquipmentMailbox -Identity "$SökOrd" -ErrorAction SilentlyContinue
 	} elseif ($Typ -eq "Exchange-kontaktobjekt") {
 		Write-Host "Söker efter kontaktobjekt..." -Foreground Cyan
-		$list = Get-Contact -Identity "*$SökOrd*" -ErrorAction SilentlyContinue
+		$list = Get-Contact -Identity "$SökOrd" -ErrorAction SilentlyContinue
 	} else {
 		Write-Error "Felaktig söktyp angivet"
 	}
@@ -60,9 +63,9 @@ function Search-SD_GemObjektMedOrdINamnet
 		Write-Host " i namn eller mailadress"
 	} else {
 		if ($Typ -eq "Exchange-kontaktobjekt") {
-			$list | select DisplayName, WindowsEmailAddress
+			$list | select DisplayName, WindowsEmailAddress | sort DisplayName
 		} else {
-			$list | select DisplayName, PrimarySmtpAddress
+			$list | select DisplayName, PrimarySmtpAddress | sort DisplayName
 		}
 	}
 }

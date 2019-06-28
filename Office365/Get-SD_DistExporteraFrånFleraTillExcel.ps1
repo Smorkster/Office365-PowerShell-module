@@ -31,87 +31,93 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	foreach ($item in $objDistributionGroups)  
 	{
 		#Get members of this group
-		$objDistributionGroup = Get-DistributionGroup -Identity $item
-		$objDGMembers = Get-DistributionGroupMember -Identity $objDistributionGroup.DisplayName -ResultSize Unlimited
-
-		Write-Host $count "- $($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
-
-		#region Create worksheet
-		if ($count -eq 1)
+		if ( $objDistributionGroup = Get-DistributionGroup -Identity $item )
 		{
-			$excelTempsheet = $excelWorkbook.ActiveSheet
-		} else {
-			$excelTempsheet = $excelWorkbook.Worksheets.Add()
-		}
-		$tempname = $objDistributionGroup.DisplayName
-		$tempname = $tempname.replace("\","_")
-		$tempname = $tempname.replace("/","_")
-		$tempname = $tempname.replace("*","_")
-		$tempname = $tempname.replace("[","_")
-		$tempname = $tempname.replace("]","_")
-		$tempname = $tempname.replace(":","_")
-		$tempname = $tempname.replace("?","_")
-		if(($tempname).Length -gt 31)
-		{
-			try
+			$objDGMembers = Get-DistributionGroupMember -Identity $objDistributionGroup.DisplayName -ResultSize Unlimited | sort Name
+
+			Write-Host $count "- $($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
+
+			#region Create worksheet
+			if ($count -eq 1)
 			{
-				$excelTempsheet.Name = ($tempname).SubString(0,31)
-			} catch {
-				$excelTempsheet.Name = ($objDistributionGroup.PrimarySMTPAddress).SubString(0,31)
+				$excelTempsheet = $excelWorkbook.ActiveSheet
+			} else {
+				$excelTempsheet = $excelWorkbook.Worksheets.Add()
 			}
-		} else {
-			$excelTempsheet.Name = $tempname
-		}
-		#endregion
-
-		#region Add Members
-		$row = 1
-		$excelTempsheet.Cells.Item($row, 1) = "Namn"
-		$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
-		$excelTempsheet.Cells.Item($row, 2) = $objDistributionGroup.DisplayName
-		$row = 2
-		$excelTempsheet.Cells.Item($row, 1) = "Mailadress"
-		$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
-		$excelTempsheet.Cells.Item($row, 2) = $objDistributionGroup.PrimarySMTPAddress
-		$row = 3
-		$excelTempsheet.Cells.Item($row, 1) = "Ägare"
-		$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
-		foreach($owner in ((Get-DistributionGroup -Identity $objDistributionGroup.Name).ManagedBy))
-		{
-			if ($owner -notlike "*MIG-User*")
+			$tempname = $objDistributionGroup.DisplayName
+			$tempname = $tempname.replace("\","_")
+			$tempname = $tempname.replace("/","_")
+			$tempname = $tempname.replace("*","_")
+			$tempname = $tempname.replace("[","_")
+			$tempname = $tempname.replace("]","_")
+			$tempname = $tempname.replace(":","_")
+			$tempname = $tempname.replace("?","_")
+			if(($tempname).Length -gt 31)
 			{
-				$excelTempsheet.Cells.Item($row, 2) = $owner
-				$row = $row + 1
+				try
+				{
+					$excelTempsheet.Name = ($tempname).SubString(0,31)
+				} catch {
+					$excelTempsheet.Name = ($objDistributionGroup.PrimarySMTPAddress).SubString(0,31)
+				}
+			} else {
+				$excelTempsheet.Name = $tempname
 			}
-		}
+			#endregion
 
-		$row = $row + 2
-		$excelTempsheet.Cells.Item($row, 1) = "Medlemmar"
-		$startTableRow = $row
-		$excelTempsheet.Cells.Item($row, 2) = "Mailadress"
-		$row = $row + 1
-		if ($objDGMembers.Count -eq 0)
-		{
-			$excelTempsheet.Cells.Item($row, 1) = "-"
+			#region Add Members
+			$row = 1
+			$excelTempsheet.Cells.Item($row, 1) = "Namn"
+			$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
+			$excelTempsheet.Cells.Item($row, 2) = $objDistributionGroup.DisplayName
+			$row = 2
+			$excelTempsheet.Cells.Item($row, 1) = "Mailadress"
+			$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
+			$excelTempsheet.Cells.Item($row, 2) = $objDistributionGroup.PrimarySMTPAddress
+			$row = 3
+			$excelTempsheet.Cells.Item($row, 1) = "Ägare"
+			$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
+			foreach($owner in ((Get-DistributionGroup -Identity $objDistributionGroup.Name).ManagedBy))
+			{
+				if ($owner -notlike "*MIG-User*")
+				{
+					$excelTempsheet.Cells.Item($row, 2) = $owner
+					$row = $row + 1
+				}
+			}
+
+			$row++
+			$excelTempsheet.Cells.Item($row, 1) = "Medlemmar"
+			$startTableRow = $row
+			$excelTempsheet.Cells.Item($row, 2) = "Mailadress"
+			$row = $row + 1
+			if ($objDGMembers.Count -eq 0)
+			{
+				$excelTempsheet.Cells.Item($row, 1) = "-"
+			} else {
+				$memberArray = @()
+				$memberMailArray = @()
+				foreach ($objMember in $objDGMembers)  
+				{  
+					$memberArray += $objMember.Name
+					$memberMailArray += $objMember.PrimarySMTPAddress
+				}
+				Set-Clipboard -Value $memberArray
+				$excelTempsheet.Cells.Item($row, 1).PasteSpecial() | Out-Null
+				Set-Clipboard -Value $memberMailArray
+				$excelTempsheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
+				$excelRange = $excelTempsheet.UsedRange
+				$excelRange.EntireColumn.AutoFit() | Out-Null
+				$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
+			}
+			#endregion Add Members
+
+			$count = $count+1
 		} else {
-			$memberArray = @()
-			$memberMailArray = @()
-			foreach ($objMember in $objDGMembers)  
-			{  
-				$memberArray += $objMember.Name
-				$memberMailArray += $objMember.PrimarySMTPAddress
-			}
-			Set-Clipboard -Value $memberArray
-			$excelTempsheet.Cells.Item($row, 1).PasteSpecial() | Out-Null
-			Set-Clipboard -Value $memberMailArray
-			$excelTempsheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
-			$excelRange = $excelTempsheet.UsedRange
-			$excelRange.EntireColumn.AutoFit() | Out-Null
-			$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
+			Write-Host "Ingen distributionslista med namn" -NoNewline
+			Write-Host $item -NoNewline -Foreground Cyan
+			Write-Host " hittades"
 		}
-		#endregion Add Members
-
-		$count = $count+1
 	}
 	$excelWorkbook.SaveAs("H:\Distributionslistor.xlsx")
 	$excelWorkbook.Close()
