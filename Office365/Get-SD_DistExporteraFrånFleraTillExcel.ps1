@@ -4,7 +4,7 @@
 .Description
 	Läser in distributionslistor från en Excel-fil, angiven som parameter, och hämtar alla användare i de distributionlistorna. De läggs sedan in i en ny Excel-fil, en distributionslista per Excel-blad och sparas på H:.
 .Parameter InputFile
-	Fil med de distributionlistor där medlemmar ska hämtas ifrån
+	CSV-fil med de distributionlistor där medlemmar ska hämtas ifrån
 .Description
 	Läser in listan med distributionlistor från InputFile, hämtar varje distributionslista och lägger det som ett eget blad i angiven Excel-fil med information om namn, SMTP-adress, ägare och medlemmar
 #>
@@ -23,7 +23,13 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	#endregion
 	  
 	#Get all Distribution Groups from Office 365  
-	$objDistributionGroups = Get-Content $InputFile
+	if ($InputFile.EndsWith("csv"))
+	{
+		$objDistributionGroups = Get-Content $InputFile
+	} else {
+		Write-Host "Filen måste vara av format 'CSV' för att skriptet ska fungera.`nAvslutar"
+		return
+	}
 	$count = 1
 	Write-Host "Hittade"$objDistributionGroups.Count"distributionlistor"
 

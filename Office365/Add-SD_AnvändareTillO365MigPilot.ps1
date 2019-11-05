@@ -27,7 +27,7 @@ function Add-SD_AnvändareTillO365MigPilot
 		} else {
 			Write-Verbose "Lägger till användare"
 			Add-DistributionGroupMember -Identity $group.ObjectId -Member $User.EmailAddress -BypassSecurityGroupManagerCheck -ErrorAction Stop
-			Write-Host "$a.Name har nu lagts till i O365-MigPilots" -Foreground Green
+			Write-Host "$($User.Name) har nu lagts till i O365-MigPilots" -Foreground Green
 		}
 	} catch {
 		if ($_.CategoryInfo.Reason -eq "ADIdentityNotFoundException")

@@ -42,11 +42,19 @@ function Add-SD_RumBokaEnAnvändare
 	try {
 		$UserAccount = Get-Mailbox -Identity $User.Emailaddress
 		$BookPolicy = (Get-CalendarProcessing -Identity $RoomObject.Identity).BookInPolicy += $User.Emailaddress | select -Unique
-
-		Set-CalendarProcessing -Identity $RoomObject.Identity -BookInPolicy $BookPolicy -AllBookInPolicy:$false
 		
-		Write-Host "$User.Name har nu behörighet att boka $RoomObject.DisplayName"
+		if ($BookPolicy -contains (Get-Mailbox -Identity $User.Emailaddress).LegacyExchangeDN)
+		{
+			Write-Host $User.Name "är redan behörighet"
+		} else {
+			Set-CalendarProcessing -Identity $RoomObject.Identity -BookInPolicy $BookPolicy -AllBookInPolicy:$false -WarningAction Stop
+			Write-Host $User.Name -NoNewline -Foreground Cyan
+			Write-Host " har nu behörighet att boka " -NoNewline
+			Write-Host $RoomObject.DisplayName -Foreground Cyan
+		}
 	} catch [System.Management.Automation.RemoteException] {
-		Write-Host "Rum $Rum hittades inte i Exchange.`nAvslutar"
+		Write-Host "Rum " -NoNewline
+		Write-Host $Rum -NoNewline -Foreground Cyan
+		Write-Host " hittades inte i Exchange.`nAvslutar"
 	}
 }

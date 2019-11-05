@@ -29,7 +29,6 @@ function Update-SD_DistErsättAllaMedlemmar
 	Read-Host "Fortsätt genom att trycka Enter..."
 
 	$newMembers = Get-Content -Path $fil
-	$numberOfEntries = $newMembers.Count
 
 	try {
 		$distList = Get-DistributionGroup -Identity $DistLista -ErrorAction Stop
@@ -41,7 +40,7 @@ function Update-SD_DistErsättAllaMedlemmar
 	$currentMembers = Get-DistributionGroupMember -Identity $distList.Identity
 	foreach ($member in $currentMembers)
 	{
-		Write-Progress -Activity "Tar bort medlem" -PercentComplete (($ticker/$currentMembers.Count)*100)
+		Write-Progress -Activity "Tar bort medlem $ticker av $($currentMembers.Count)" -PercentComplete (($ticker/$currentMembers.Count)*100)
 		Remove-DistributionGroupMember -Identity $distList.Identity -Member $member.PrimarySMTPAddress -Confirm:$false
 		$ticker++
 	}
@@ -51,6 +50,7 @@ function Update-SD_DistErsättAllaMedlemmar
 	$newMembers | foreach {
 		$ticker = $ticker + 1
 		$emailToAdd = $_.Trim()
+		Write-Progress -Activity "Lägger till medlemmar $ticker av $($currentMembers.Count)" -PercentComplete (($ticker/$currentMembers.Count)*100)
 		Write-Host "Lägger in $emailToAdd"
 
 		#region Create contact object

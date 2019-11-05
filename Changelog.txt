@@ -1,3 +1,13 @@
+2019-11-01
+**********
+Add-SD_AnvändareTillO365MigPilot - Rättat utskrift när skriptet är klart
+Add-SD_RumBokaEnAnvändare - Testar nu om behörighet redan finns
+Confirm-SD_AnvändareKontoStatus - Listar nu registrerade enheter / Kontrollerar ifall anställning finns på rätt organisation
+Get-SD_AnvändareEnheter - Ny. Hämta registrerade enheter i Azure
+Get-SD_DistExporteraFrånFleraTillExcel - Kontrollerar nu format på InputFile
+Update-SD_DistErsättAllaMedlemmar - Informerar nu bättre hur mycket som gjorts
+Update-SD_Distributionslista - Korrigerade hantering av interna mailadresser
+
 2019-06-28
 **********
 Get-SD_DatorerGAIAKontoLåstsVid - Resultat sorteras nu

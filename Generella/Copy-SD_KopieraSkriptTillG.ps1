@@ -10,7 +10,7 @@
 
 function Copy-SD_KopieraSkriptTillG
 {
-	$localDir = "H:\Programmering\Powershell"
+	$localDir = "H:\Dokument\Programmering\Powershell"
 	$centralDir = "G:\\\Epost & Skype\Powershell\"
 	$local = Get-ChildItem $localDir -File -Recurse
 	$central = Get-ChildItem $centralDir -File -Recurse

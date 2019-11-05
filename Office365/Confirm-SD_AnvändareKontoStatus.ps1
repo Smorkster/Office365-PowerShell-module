@@ -6,7 +6,7 @@
 	Ifall något steg fallerar, kommer skriptet stoppas.
 .Parameter id
 	id för användaren
-.Parameter AllTests
+	.Parameter AllTests
 	Switch för att köra alla kontroller
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD"
@@ -72,16 +72,22 @@ function Confirm-SD_AnvändareKontoStatus
 		Write-Host "AD-konto är inte låst" -Foreground Green
 	}
 
-	if($user.msExchMailboxGuid -ne $null)
+	if ($user.DistinguishedName -like "*OU=KundC*")
 	{
-		Write-Host "msExchMailboxGuid är inte tomt i AD" -Foreground Red
-		$fail = $true
-		if(-not $AllTests)
-		{
-			return
-		}
+		Write-Host "Anställd på annan plats, ignorerar msExchMailboxGuid" -Foreground Green
+		$
 	} else {
-		Write-Host "msExchMailboxGuid är tomt i AD" -Foreground Green
+		if($user.msExchMailboxGuid -ne $null)
+		{
+			Write-Host "msExchMailboxGuid är inte tomt i AD" -Foreground Red
+			$fail = $true
+			if(-not $AllTests)
+			{
+				return
+			}
+		} else {
+			Write-Host "msExchMailboxGuid är tomt i AD" -Foreground Green
+		}
 	}
 
 	try
@@ -94,6 +100,7 @@ function Confirm-SD_AnvändareKontoStatus
 
 	try
 	{
+		#region Azure-login
 		if ($userAzure.BlockCredential)
 		{
 			Write-Host "Inloggning med O365-konto inaktiverat" -Foreground Red
@@ -101,28 +108,14 @@ function Confirm-SD_AnvändareKontoStatus
 		} else {
 			Write-Host "Inloggning med O365-konto aktiverat" -Foreground Green
 		}
+		#endregion
 
 		$haveLicens = $false
 		$licenses = $userAzure.Licenses | select accountskuid | % {$_ -match "pack"}
-		foreach($l in $licenses)
-		{
-			if($l -eq $true)
-			{
-				$haveLicens = $true
-			}
-		}
-		if(-not $haveLicens)
-		{
-			Write-Host "E3-licens saknas" -Foreground Red
-			$fail = $true
-			if(-not $AllTests)
-			{
-				return
-			}
-		} else {Write-Host "E3-licens finns" -Foreground Green}
+		$userGroups = Get-AzureADUser -Filter "UserPrincipalName eq '$($user.EmailAddress)'" | Get-AzureADUserMembership
 
-		$userGroups = Get-AzureADUser -Filter "UserPrincipalName eq '$($user.EmailAddress)'" | Get-AzureADUserMembership | ? {$_.DisplayName -like "O365-MigPilots"}
-		if($userGroups -eq $null)
+		#region MigPilot
+		if(($userGroups | ? {$_.DisplayName -like "O365-MigPilots"}) -eq $null)
 		{
 			Write-Host "Är inte medlem i O365-MigPilots" -Foreground Red
 			$fail = $true
@@ -131,7 +124,33 @@ function Confirm-SD_AnvändareKontoStatus
 				return
 			}
 		} else {Write-Host "Är medlem i O365-MigPilots" -Foreground Green}
-		
+		#endregion
+
+		#region Tnf-user
+		if(($userGroups | ? {$_.DisplayName -like "KundC"}) -eq $null)
+		{
+			foreach($l in $licenses)
+			{
+				if($l -eq $true)
+				{
+					$haveLicens = $true
+				}
+			}
+			if(-not $haveLicens)
+			{
+				Write-Host "E3-licens saknas" -Foreground Red
+				$fail = $true
+				if(-not $AllTests)
+				{
+					return
+				}
+			} else {Write-Host "E3-licens finns" -Foreground Green}
+		} else {
+			Write-Host "Anställd på annan plats, tilldelas ingen licens." -Foreground Green
+		}
+		#endregion
+
+		#region Exchange
 		$userExchange = Get-Mailbox -Identity $user.EmailAddress -ErrorAction SilentlyContinue
 		if($userExchange -eq $null)
 		{
@@ -144,7 +163,9 @@ function Confirm-SD_AnvändareKontoStatus
 		} else {
 			Write-Host "Mailbox skapad i Exchange" -Foreground Green
 		}
+		#endregion
 
+		#region Logins
 		Search-UnifiedAuditLog -StartDate ([DateTime]::Today.AddDays(-10)) -EndDate ([DateTime]::Now) -UserIds $user.EmailAddress -Operations "UserLoggedIn" -AsJob | Out-Null
 		Write-Host "Senast lyckade inloggning: " -NoNewline
 		$successfullLoggins = Get-Job | Receive-Job
@@ -186,6 +207,21 @@ function Confirm-SD_AnvändareKontoStatus
 		} else {
 			Write-Host "Inga inloggningar registrerade"
 		}
+		#endregion
+		
+		#region Devices
+		if (($devices = Get-AzureADUserRegisteredDevice -ObjectId $userAzure.ObjectId).Count -gt 0)
+		{
+			Write-Host "Följande enheter är kopplade i Azure:"
+			foreach ($device in $devices)
+			{
+				Write-Host "`t $($device.DisplayName)"
+			}
+		} else {
+			Write-Host "Inga enheter registrerade i Azure"
+		}
+		#endregion
+
 	} catch [Microsoft.Online.Administration.Automation.MicrosoftOnlineException] {
 		Write-Host "O365-konto har inte skapats. Avbryter resten av testerna." -Foreground Red
 		$fail = $true
