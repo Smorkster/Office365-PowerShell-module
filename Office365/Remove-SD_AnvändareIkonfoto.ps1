@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Tar bort en användares profilbild i Office365
 .Description
@@ -16,6 +16,7 @@ function Remove-SD_AnvändareIkonfoto
 	[Parameter(Mandatory=$true)]
 		[string] $id
 	)
+
 	try {
 		$user = Get-ADUser -Identity $id -Properties * -ErrorAction Stop
 		$mailbox = Get-Mailbox -Identity $user.EmailAddress -ErrorAction Stop
@@ -38,3 +39,4 @@ function Remove-SD_AnvändareIkonfoto
 		}
 	}
 }
+

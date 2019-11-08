@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Anslut till tjänsterna
 .Description
@@ -6,6 +6,7 @@
 .Parameter reconnectExchange
 	Återansluter till Exchange.
 	Stänger nuvarande PSSession, skapar en ny och ansluter
+	Parameter anges utan tillhörande värde
 #>
 
 function Connect-SD_ToServices
@@ -57,3 +58,4 @@ function Connect-SD_ToServices
 	$WarningPreference = "Continue"
 	Write-Host "Connected to services"
 }
+

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Ändra texten i rums bokningsbekräftelse
 .Description
@@ -16,9 +16,9 @@ function Set-SD_RumBekräftelseMeddelande
 {
 	param(
 	[Parameter(Mandatory=$true)]
-		$Rum,
+		[string] $Rum,
 	[Parameter(Mandatory=$true)]
-		$Meddelande
+		[string] $Meddelande
 	)
 	
 	if($room = Get-Mailbox -Identity $Rum)
@@ -32,3 +32,4 @@ function Set-SD_RumBekräftelseMeddelande
 		Write-Host " funnet"
 	}
 }
+

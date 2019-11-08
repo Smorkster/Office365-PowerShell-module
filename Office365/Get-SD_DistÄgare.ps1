@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Hämtar ägare av distributionslista
 .Description
@@ -32,3 +32,4 @@ function Get-SD_DistÄgare
 		Write-Host " funnen"
 	}
 }
+

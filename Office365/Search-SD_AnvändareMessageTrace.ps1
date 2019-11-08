@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Sök messagetrace till eller från angiven användare
 .Description
@@ -13,6 +13,7 @@
 	Slutdatum för sökningen. Om slutdatum utesluts, används dagens datum
 .Parameter Exportera
 	Används för att exportera messagetrace till Excel-fil
+	Parameter anges utan tillhörande värde
 .Example
 	Search-SD_AnvändareMessageTrace -AdressAvsändare "test@test.com" -AdressMottagare "testare@test.com" -Startdatum 1970-01-01 -Slutdatum 1970-01-02
 	Söker efter alla mail som skickats från test@test till testare@test mellan datum 1970-01-01 och 1970-01-02
@@ -159,3 +160,4 @@ function Search-SD_AnvändareMessageTrace
 		$mails
 	}
 }
+

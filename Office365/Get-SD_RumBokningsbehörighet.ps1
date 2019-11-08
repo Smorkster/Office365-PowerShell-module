@@ -1,16 +1,19 @@
-<#
+﻿<#
 .Synopsis
 	Hämtar vilka som kan boka ett rum
 .Description
 	Listar vilka personser som kan skapa bokningar i angivet rum. Om angivet, kontrolleras om det finns personer som inte har blivit synkroniserade från Azure, samt ifall de ska bli synkroniserade. Det går även att exportera de synkroniserade personerna till en Excel-fil som då kommer sparas på H:.
 .Parameter RumsNamn
 	Namn på rummet som efterfrågas
-.Parameter Sync
+.Parameter Synkade
 	Anger att gruppmedlemarna ska synkroniseras till Exchange
+	Parameter anges utan tillhörande värde
 .Parameter Osynkade
 	Skriv ut vilka som inte har blivit synkroniserade
-.Parameter Export
+	Parameter anges utan tillhörande värde
+.Parameter Exportera
 	Ange om användarnas mailadresser ska exporteras till en fil
+	Parameter anges utan tillhörande värde
 .Example
 	Get-SD_RumBokningsbehörighet -RumsNamn "RumA"
 	Ordinarier körning, hämtar vilka som är synkroniserade, samt hur många som inte synkats
@@ -157,3 +160,4 @@ function Get-SD_RumBokningsbehörighet
 		Write-Host "`nGruppen för bokningsbehörighet i Azure är tom.`nInga unika behörigheter har skapats, alla kan boka rummet."
 	}
 }
+

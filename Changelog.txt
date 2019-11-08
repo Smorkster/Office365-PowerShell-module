@@ -1,3 +1,18 @@
+﻿2019-11-08
+**********
+Starta Servicedesk PowerShell-Modul - La till felhantering för icke installerade moduler / Importerar nu även modulen MicrosoftTeams
+Add-SD_RumBokaFleraAnvändare - Förtydligade dokumentationen
+Confirm-SD_AnvändareKontoStatus - Förtydligade dokumentationen
+Connect-SD_ToServices - Förtydligade dokumentationen
+Edit-SD_AdminBehörigheter - Förtydligade dokumentationen
+Get-SD_DistAdresserIListan - Förtydligade dokumentationen
+Get-SD_DistÄgare - Förtydligade dokumentationen
+Get-SD_RumBokningsbehörighet - Förtydligade dokumentationen
+Remove-SD_AnvändareIkonfoto - Förtydligade dokumentationen
+Search-SD_AnvändareMessageTrace - Förtydligade dokumentationen
+Set-SD_RumBekräftelseMeddelande - Förtydligade dokumentationen
+Set-SD_RumBokningsDetaljerSynliga - Förtydligade dokumentationen
+
 2019-11-01
 **********
 Add-SD_AnvändareTillO365MigPilot - Rättat utskrift när skriptet är klart
@@ -175,3 +190,4 @@ Get-SD_AnvändareÄgareDistributionslistor - Ny
 Get-SD_DistAdresserIListan - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject
 Get-SD_DistExporteraFrånFleraTillExcel - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject
 Get-SD_RumBokningsbehörighet - Användarna läggs nu in i en tabell, rättade till rensning av Excel-comobject
+

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Starta modulen för PowerShell-skript och anslut till online-tjänsterna
 .Description
@@ -7,8 +7,10 @@
 	Efter inloggningen i Exchange, MSOnline och AzureAD, läses (importeras) Servicedesks-modul in.
 .Parameter loadOnly
 	Startar bara PowerShell-modulen. Gör alltså ingen inloggning
+	Parameter anges utan tillhörande värde
 .Parameter reconnectExchange
 	Läser om modulen för Exchange och gör en ny inloggning
+	Parameter anges utan tillhörande värde
 #>
 
 param (
@@ -22,14 +24,20 @@ $exchangeModule = $((Get-ChildItem -Path $($env:LOCALAPPDATA+"\Apps\2.0\") -Filt
 
 if(-not (Get-Module | ? {$_.Name -like "*MSOnline*"}))
 {
-	Write-Host "Läser in MSOnline-modulen" -ForegroundColor Cyan
-	Import-Module MSOnline
+	try
+	{
+		Write-Host "Läser in MSOnline-modulen" -ForegroundColor Cyan
+		Import-Module MSOnline
+	} catch [System.IO.FileNotFoundException] {Write-Host "Modulen för MicrosoftTeams är inte installerad"}
 }
 
 if(-not (Get-Module | ? {$_.Name -like "*ActiveDirectory*"}))
 {
-	Write-Host "Läser in ActiveDirectory-modulen" -ForegroundColor Cyan
-	Import-Module ActiveDirectory
+	try
+	{
+		Write-Host "Läser in ActiveDirectory-modulen" -ForegroundColor Cyan
+		Import-Module ActiveDirectory -ErrorAction Stop
+	} catch [System.IO.FileNotFoundException] {Write-Host "Modulen för MicrosoftTeams är inte installerad"}
 }
 
 if(-not $loadOnly)
@@ -39,6 +47,15 @@ if(-not $loadOnly)
 		Write-Host "Läser in Exchange-modulen" -ForegroundColor Cyan
 		Import-Module $exchangeModule
 	}
+}
+
+if(-not (Get-Module | ? {$_.Name -like "*MicrosoftTeams*"}))
+{
+	try
+	{
+		Write-Host "Läser in MicrosoftTeams-modulen" -ForegroundColor Cyan
+		Import-Module MicrosoftTeams -ErrorAction Stop
+	} catch [System.IO.FileNotFoundException] {Write-Host "Modulen för MicrosoftTeams är inte installerad"}
 }
 
 if(-not (Get-Module | ? {$_.Name -like "*Servicedesk*"}))
@@ -110,3 +127,4 @@ try
 		Write-Host "Module AzureAD är inte installerat på datorn." -ForegroundColor Red
 	}
 }
+

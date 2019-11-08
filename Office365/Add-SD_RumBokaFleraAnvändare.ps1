@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Lägger till/tar bort användare för behörighet att boka i ett eller flera rum.
 .Description
@@ -6,6 +6,7 @@
 	Varje användare från filen AddUserToRoomBookUsers.txt läggs in i varje rum från filen AddUserToRoomBookGroups.txt
 .Parameter Remove
 	Parameter för att ange ifall användarna ska tas bort.
+	Parameter anges utan tillhörande värde
 .Example
 	Add-SD_RumBokaFleraAnvändare
 	Lägger in varje användare i varje rum
@@ -138,3 +139,4 @@ function Add-SD_RumBokaFleraAnvändare
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($temp) | Out-Null
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel) | Out-Null
 }
+

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Hämtar adresser i en distributionslista
 .Description
@@ -8,8 +8,10 @@
 	Namn på distributionslistan
 .Parameter EndastExterna
 	Används för att enbart hämta de externa adresserna i distributionslistan
+	Parameter anges utan tillhörande värde
 .Parameter Exportera
 	Anger ifall datan ska exporteras till en Excel-fil
+	Parameter anges utan tillhörande värde
 .Example
 	Get-SD_DistAdresserIListan -Distlista "Distlista"
 	Hämtar alla adresser i distributionslistan Distlista, dvs alla som ska ta emot mail som skickas till distributionslistan
@@ -94,3 +96,4 @@ function Get-SD_DistAdresserIListan
 		}
 	}
 }
+

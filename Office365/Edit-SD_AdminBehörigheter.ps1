@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Lägger till/tar bort full behörighet till ett konto
 .Description
@@ -10,6 +10,7 @@
 	id för användare vars konto behörigheten ska kopplas till
 .Parameter Rensa
 	Tar bort behörighet till alla konton där full access har lagts till. Läsning görs från fil.
+	Parameter anges utan tillhörande värde
 .Example
 	Edit-SD_AdminBehörigheter -Mailadress "test@test.com"
 	Lägger till FullAccess-behörighet till konto med mailadress test@test.com
@@ -24,6 +25,7 @@ function Edit-SD_AdminBehörigheter
 		[String] $id,
 		[switch] $Rensa
 	)
+
 	$file = "H:\O365Admin.txt"
 	$adminName = Get-ADUser -Identity $env:USERNAME
 	$adminUser = $adminName.GivenName  + " " + $adminName.Surname + " (Admin)"
@@ -88,3 +90,4 @@ function Edit-SD_AdminBehörigheter
 		}
 	}
 }
+

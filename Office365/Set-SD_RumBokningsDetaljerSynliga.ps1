@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Gör rums kalendarbokningars information synlig
 .Description
@@ -14,7 +14,7 @@ function Set-SD_RumBokningsDetaljerSynliga
 {
 	param(
 	[Parameter(Mandatory=$true)]
-		$Rum
+		[string] $Rum
 	)
 
 	if ($room = Get-Mailbox -Identity $Rum)
@@ -28,3 +28,4 @@ function Set-SD_RumBokningsDetaljerSynliga
 		Write-Host " finns inte"
 	}
 }
+

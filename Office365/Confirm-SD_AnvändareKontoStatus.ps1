@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Kontrollera status på olika delar av ett mailkonto
 .Description
@@ -6,8 +6,9 @@
 	Ifall något steg fallerar, kommer skriptet stoppas.
 .Parameter id
 	id för användaren
-	.Parameter AllTests
+.Parameter AllTests
 	Switch för att köra alla kontroller
+	Parameter anges utan tillhörande värde
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD"
 	Utför tester för att kontollera att mailkonto skapats för användare ABCD. Om något test fallerar, avbryts testningen
@@ -22,7 +23,7 @@ function Confirm-SD_AnvändareKontoStatus
 	[Parameter(Mandatory=$true)]
 		[String] $id,
 		[switch] $AllTests
-		)
+	)
 
 	try
 	{
@@ -236,3 +237,4 @@ function Confirm-SD_AnvändareKontoStatus
 		Write-Host "Allt ska fungera"
 	}
 }
+
