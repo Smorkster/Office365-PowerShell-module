@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Lägger till ett autosvarsmeddelande
 .Description
@@ -31,13 +31,11 @@ function Add-SD_AnvändareAutosvar
 		[string] $Slutdatum
 	)
 	Write-Progress -Activity "Skapar autosvar" -Status "Hämtar admin från AD" -PercentComplete ((1/6)*100)
-    $adminName = Get-ADUser -Identity $env:USERNAME
-	$adminUser = $adminName.GivenName  + " " + $adminName.Surname + " (Admin)"
 	try
 	{
 		Write-Verbose "Hämtar ditt adminkonto"
 		Write-Progress -Activity "Skapar autosvar" -Status "Hämtar adminkonto i Exchange" -PercentComplete ((2/6)*100)
-		$adminAccount = Get-Mailbox -Anr $adminUser
+		$adminAccount = Get-Mailbox -Anr (Get-PSSession -Id 1).Runspace.OriginalConnectionInfo.Credential.UserName
 	} catch {
 		Write-Host "Hittar inget adminkonto. Avslutar" -Foreground Red
 		return
@@ -93,3 +91,4 @@ function Add-SD_AnvändareAutosvar
 	Write-Progress -Activity "Skapar autosvar" -Status "Tar bort behörighet från användarkonto" -PercentComplete ((6/6)*100)
 	Remove-MailboxPermission -Identity $userAccount.PrimarySmtpAddress -User $adminAccount.PrimarySmtpAddress -AccessRights FullAccess -Confirm:$false
 }
+

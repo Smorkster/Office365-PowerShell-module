@@ -27,12 +27,10 @@ function Edit-SD_AdminBehörigheter
 	)
 
 	$file = "H:\O365Admin.txt"
-	$adminName = Get-ADUser -Identity $env:USERNAME
-	$adminUser = $adminName.GivenName  + " " + $adminName.Surname + " (Admin)"
 	try
 	{
 		Write-Verbose "Hämtar ditt adminkonto"
-		$adminAccount = Get-Mailbox -Anr $adminUser
+		$adminAccount = Get-Mailbox -Anr (Get-PSSession -Id 1).Runspace.OriginalConnectionInfo.Credential.UserName
 	} catch {
 		Write-Host "Hittar inget adminkonto. Avslutar" -Foreground Red
 		return

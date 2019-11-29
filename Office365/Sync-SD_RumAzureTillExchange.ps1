@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     Synka användares behörigheter till rum från Azure till Exchange
 .Description
@@ -16,7 +16,7 @@ function Sync-SD_RumAzureTillExchange
 
 	$azureNamn = "Res-"+$Rum+"-Book"
 	$usersAzure = Get-AzureADGroupMember -ObjectId (Get-AzureADGroup -SearchString $azureNamn).ObjectId
-	$roomPolicy = Get-CalendarProcessing -Identity $Rum
+	$roomPolicy = (Get-CalendarProcessing -Identity $Rum).BookInPolicy
 	$exchangeRum = "$Rum`:\Kalender"
 	$ticker = 1
 
@@ -51,3 +51,4 @@ function Sync-SD_RumAzureTillExchange
 		$ticker++
 	}
 }
+

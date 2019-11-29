@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     Synka behörigheter för användare till funktionsbrevlåda, från Azure till Exchange
 .Description
@@ -52,6 +52,7 @@ function Sync-SD_FunkAzureTillExchange
 	#endregion
 
 	#region GrantSendOnBehalfTo
+	Set-Mailbox -Identity $Funktionsbrevlåda -GrantSendOnBehalfTo $null
 	foreach ($member in $members)
 	{
 		Set-Mailbox -Identity $Funktionsbrevlåda -GrantSendOnBehalfTo @{Add=$($member.UserPrincipalName)}
@@ -84,3 +85,4 @@ function Sync-SD_FunkAzureTillExchange
 		$members | select DisplayName, UserPrincipalName
 	}
 }
+

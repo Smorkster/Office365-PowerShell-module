@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Ersätter alla medlemmar i distributionslista
 .Description
@@ -28,7 +28,13 @@ function Update-SD_DistErsättAllaMedlemmar
 	$ticker = 1
 	Read-Host "Fortsätt genom att trycka Enter..."
 
-	$newMembers = Get-Content -Path $fil
+	try {
+		$newMembers = Get-Content -Path $fil
+	} catch {
+		Write-Host "Kan inte läsa fil.`nAvslutar.`n`nFelmeddelande:`n"
+		$_.Exception
+		return
+	}
 
 	try {
 		$distList = Get-DistributionGroup -Identity $DistLista -ErrorAction Stop
@@ -80,3 +86,4 @@ function Update-SD_DistErsättAllaMedlemmar
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($temp) | Out-Null
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel) | Out-Null
 }
+
