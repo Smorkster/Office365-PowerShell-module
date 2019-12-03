@@ -2,7 +2,7 @@
 .Synopsis
     Synka användares behörigheter till rum från Azure till Exchange
 .Description
-    Ifall en användare har fått behörighet skapad i en Azure-grupp för rum, men detta inte har blivit översynkat till Exchange, kan den läggas på manuellt
+	Ifall en användare har fått behörighet skapad i en Azure-grupp för rum, men detta inte har blivit översynkat till Exchange, kan den läggas på manuellt
     Parameter Rumslista kan ta ett eller flera rum och loopar då igenom varje rum enskilt
 .Parameter Rum
     Namn på rum som ska synkroniseras
@@ -28,7 +28,7 @@ function Sync-SD_RumAzureTillExchange
 	Set-CalendarProcessing -Identity $Rum -AllBookInPolicy:$false -BookInPolicy $roomPolicy -ErrorAction SilentlyContinue
 
 	foreach ($user in $usersAzure) {
-        Write-Progress -Activity $r -PercentComplete (($ticker/$usersAzure.Count)*100)
+        Write-Progress -Activity $user -PercentComplete (($ticker/$usersAzure.Count)*100)
 		try {
 			Write-Verbose "Skapar behörighet för $($user.DisplayName)"
 			Add-MailboxFolderPermission -Identity $exchangeRum -AccessRights LimitedDetails -Confirm:$false -User $user.UserPrincipalName -ErrorAction Stop
@@ -51,4 +51,3 @@ function Sync-SD_RumAzureTillExchange
 		$ticker++
 	}
 }
-

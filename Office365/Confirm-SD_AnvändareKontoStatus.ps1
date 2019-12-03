@@ -17,6 +17,49 @@
 	Utför alla tester för att kontollera att mailkonto skapats för användare ABCD. Har det inte skapats någon msoluser, kommer dock testningen avbrytas
 #>
 
+function GetLastLogon
+{
+	param(
+		$logons
+	)
+
+	$lastlogon = ($logons[0].AuditData | ConvertFrom-Json).CreationTime
+
+	foreach($logon in $logons) {
+		if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
+		{
+			$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
+		}
+	}
+
+	$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
+	if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1))
+	{
+		if (($lastlogon.Hour + 1) -lt 10)
+		{
+			$hour = "0"+($lastlogon.Hour + 1)
+		} else {$hour = $lastlogon.Hour}
+		if ($lastlogon.Minute -lt 10)
+		{
+			$minute = "0"+($lastlogon + 1)
+		} else {$minute = $lastlogon.Minute}
+		$logontime = "Igår "+$hour+":"+$minute
+	} elseif ($lastlogon.Date -eq [datetime]::Today) {
+		if (($lastlogon.Hour + 1) -lt 10)
+		{
+			$hour = "0"+($lastlogon.Hour + 1)
+		} else {$hour = $lastlogon.Hour}
+		if ($lastlogon.Minute -lt 10)
+		{
+			$minute = "0"+($lastlogon.Minute + 1)
+		} else {$minute = $lastlogon.Minute}
+		$logontime = "Idag "+$hour+":"+$minute
+	} else {
+		$logontime = $lastlogon.DateTime
+	}
+	return $logontime
+}
+
 function Confirm-SD_AnvändareKontoStatus
 {
 	param(
@@ -165,64 +208,6 @@ function Confirm-SD_AnvändareKontoStatus
 			Write-Host "Mailbox skapad i Exchange" -Foreground Green
 		}
 		#endregion
-
-		#region Logins
-		Search-UnifiedAuditLog -StartDate ([DateTime]::Today.AddDays(-10)) -EndDate ([DateTime]::Now) -UserIds $user.EmailAddress -Operations "UserLoggedIn" -AsJob | Out-Null
-		Write-Host "Senast lyckade inloggning: " -NoNewline
-		$successfullLoggins = Get-Job | Receive-Job
-		if ($successfullLoggins.Count -gt 0)
-		{
-			$lastlogon = ($successfullLoggins[0].AuditData | ConvertFrom-Json).CreationTime
-
-			foreach($logon in $successfullLoggins) {
-				if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
-				{
-					$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
-				}
-			}
-
-			$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
-			if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1)) {
-				if (($lastlogon.Hour + 1) -lt 10)
-				{
-					$hour = "0"+($lastlogon.Hour + 1)
-				} else {$hour = $lastlogon.Hour}
-				if ($lastlogon.Minute -lt 10)
-				{
-					$minute = "0"+($lastlogon + 1)
-				} else {$minute = $lastlogon.Minute}
-				Write-Host "Igår"$hour":"$minute -Foreground Green
-			}
-			elseif ($lastlogon.Date -eq [datetime]::Today) {
-				if (($lastlogon.Hour + 1) -lt 10)
-				{
-					$hour = "0"+($lastlogon.Hour + 1)
-				} else {$hour = $lastlogon.Hour}
-				if ($lastlogon.Minute -lt 10)
-				{
-					$minute = "0"+($lastlogon.Minute + 1)
-				} else {$minute = $lastlogon.Minute}
-				Write-Host "Idag"$hour":"$minute -Foreground Green
-			}
-			else {Write-Host $lastlogon.DateTime -Foreground Green}
-		} else {
-			Write-Host "Inga inloggningar registrerade"
-		}
-		#endregion
-		
-		#region Devices
-		if (($devices = Get-AzureADUserRegisteredDevice -ObjectId $userAzure.ObjectId).Count -gt 0)
-		{
-			Write-Host "Följande enheter är kopplade i Azure:"
-			foreach ($device in $devices)
-			{
-				Write-Host "`t $($device.DisplayName)"
-			}
-		} else {
-			Write-Host "Inga enheter registrerade i Azure"
-		}
-		#endregion
-
 	} catch [Microsoft.Online.Administration.Automation.MicrosoftOnlineException] {
 		Write-Host "O365-konto har inte skapats. Avbryter resten av testerna." -Foreground Red
 		$fail = $true
@@ -234,7 +219,43 @@ function Confirm-SD_AnvändareKontoStatus
 
 	if(-not $fail)
 	{
-		Write-Host "Allt ska fungera"
+		Write-Host "Allt ska fungera`n"
 	}
-}
 
+	#region Logins
+	$auditLog = Search-UnifiedAuditLog -StartDate ([DateTime]::Today.AddDays(-10)) -EndDate ([DateTime]::Now) -UserIds $user.EmailAddress
+	$successfullAzureLoggins = $auditLog | ? { $_.Operations -eq "UserLoggedIn" }
+	$successfullTeamsLoggins = $auditLog | ? { $_.Operations -eq "FileAccessed" -and $_.RecordType -eq  "SharePointFileOperation" }
+
+	Write-Host "Senast lyckade AzureAD-inloggning: " -NoNewline
+	if ($successfullAzureLoggins -eq $null)
+	{
+		Write-Host "Inga inloggningar registrerade"
+	} else {
+		$logon = GetLastLogon -logons $successfullAzureLoggins
+		Write-Host $logon -Foreground Cyan
+	}
+
+	Write-Host "Senast lyckade Teams-inloggning: " -NoNewline
+	if ($successfullTeamsLoggins -eq $null)
+	{
+		Write-Host "Inga inloggningar registrerade"
+	} else {
+		$logon = GetLastLogon -logons $successfullTeamsLoggins
+		Write-Host $logon -Foreground Cyan
+	}
+	#endregion
+	
+	#region Devices
+	if (($devices = Get-AzureADUserRegisteredDevice -ObjectId $userAzure.ObjectId).Count -gt 0)
+	{
+		Write-Host "Följande enheter är kopplade i Azure:"
+		foreach ($device in $devices)
+		{
+			Write-Host "`t $($device.DisplayName)"
+		}
+	} else {
+		Write-Host "Inga enheter registrerade i Azure"
+	}
+	#endregion
+}

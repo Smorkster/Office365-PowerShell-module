@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
 	Är användare medlem i en Azure-grupp
 .Description
@@ -21,16 +21,17 @@ function Confirm-SD_AnvändareMedlemIAzureGrupp
 	)
 
 	try {
-		$user = Get-AzureADUser -SearchString $MailAnvändare
+		$user = Get-AzureADUser -ObjectId $MailAnvändare
 	} catch {
-		Write-Host "Anvädnare hittades inte i Azure.`nAvslutar"
+		Write-Host "Användare hittades inte i Azure.`nAvslutar"
 		return
 	}
 
-	try {
-		$group = Get-AzureADGroup -SearchString $GruppNamn
-	} catch {
-		Write-Host "Grupp $GruppNamn hittades inte i Azure.`nAvslutar"
+	if ( ( $group = Get-AzureADGroup -SearchString $GruppNamn ).Count -eq 0)
+	{
+		Write-Host "Grupp " -NoNewline
+		Write-Host $GruppNamn -Foreground Cyan -NoNewline
+		Write-Host " hittades inte i Azure.`nAvslutar"
 		return
 	}
 

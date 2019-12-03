@@ -1,4 +1,10 @@
-﻿2019-11-27
+﻿2019-12-03
+**********
+Confirm-SD_AnvändareKontoStatus - Utökade till att visa senaste Teams-inloggningen
+Confirm-SD_AnvändareMedlemIAzureGrupp - Hittar nu grupper korrekt / Lagt till parameter för att enbart visa Teams-grupper
+Sync-SD_RumAzureTillExchange - Rättade utskriften av Write-Progress
+
+2019-11-27
 **********
 Add-SD_AnvändareAutosvar - Förenklat hur admin-kontot hämtas
 Edit-SD_AdminBehörigheter - Förenklat hur admin-kontot hämtas
