@@ -56,17 +56,28 @@ function Update-SD_DistErsättAllaMedlemmar
 	$newMembers | foreach {
 		$ticker = $ticker + 1
 		$emailToAdd = $_.Trim()
-		Write-Progress -Activity "Lägger till medlemmar $ticker av $($currentMembers.Count)" -PercentComplete (($ticker/$currentMembers.Count)*100)
+		Write-Progress -Activity "Lägger till medlemmar $ticker av $($newMembers.Count)" -PercentComplete (($ticker/$newMembers.Count)*100)
 		Write-Host "Lägger in $emailToAdd"
 
 		#region Create contact object
-		if((Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-Contact -Identity $emailToAdd -ErrorAction SilentlyContinue))
+		if((Get-Mailbox -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-Contact -Identity $emailToAdd -ErrorAction SilentlyContinue) -or (Get-DistributionGroup -Identity $emailToAdd -ErrorAction SilentlyContinue))
 		{
 			Write-Host "`tAdress finns i Exchange." -Foreground Green
 		} else {
 			Write-Host "`tInget kontaktobjekt hittades i Exchange, skapar" -Foreground Cyan
-			New-MailContact -Name $emailToAdd -ExternalEmailAddress $emailToAdd | Out-Null
-			Set-MailContact -Identity $emailToAdd -HiddenFromAddressListsEnabled $true | Out-Null
+			try {
+				New-MailContact -Name $emailToAdd -ExternalEmailAddress $emailToAdd -ErrorAction Stop | Out-Null
+				Set-MailContact -Identity $emailToAdd -HiddenFromAddressListsEnabled $true -ErrorAction Stop
+			} catch {
+				if ($_.CategoryInfo.Reason -eq "RecipientTaskException")
+				{
+					Write-Host $emailToAdd -Foreground Cyan -NoNewline
+					Write-Host " är inte en giltig mailadress" -Foreground Red
+					$fails += $emailToAdd+"`n"
+				} else {
+					Write-Host $_ -Foreground Red
+				}
+			}
 			Write-Host "`tKontaktobjekt skapat." -Foreground Green
 		}
 		#endregion Create contact object
@@ -81,9 +92,13 @@ function Update-SD_DistErsättAllaMedlemmar
 		Write-Host "Klar`n" -Foreground Green
 	}
 
+	if ($fails -ne $null)
+	{
+		Write-Host "Följande adresser kunde inte läggas till:"
+		$fails
+	}
 	$Excel.Workbooks.Close()
 	$Excel.Quit()
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($temp) | Out-Null
 	[System.Runtime.Interopservices.Marshal]::ReleaseComObject($Excel) | Out-Null
 }
-

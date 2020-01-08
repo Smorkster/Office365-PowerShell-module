@@ -7,58 +7,15 @@
 .Parameter id
 	id för användaren
 .Parameter AllTests
-	Switch för att köra alla kontroller
+	Switch för att köra alla kontroller.
 	Parameter anges utan tillhörande värde
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD"
 	Utför tester för att kontollera att mailkonto skapats för användare ABCD. Om något test fallerar, avbryts testningen
 .Example
 	Confirm-SD_AnvändareKontoStatus -id "ABCD" -AllTests
-	Utför alla tester för att kontollera att mailkonto skapats för användare ABCD. Har det inte skapats någon msoluser, kommer dock testningen avbrytas
+	Utför alla tester för att kontollera att mailkonto skapats för användare ABCD. Har det inte skapats någon msoluser, avbryts testningen
 #>
-
-function GetLastLogon
-{
-	param(
-		$logons
-	)
-
-	$lastlogon = ($logons[0].AuditData | ConvertFrom-Json).CreationTime
-
-	foreach($logon in $logons) {
-		if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
-		{
-			$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
-		}
-	}
-
-	$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
-	if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1))
-	{
-		if (($lastlogon.Hour + 1) -lt 10)
-		{
-			$hour = "0"+($lastlogon.Hour + 1)
-		} else {$hour = $lastlogon.Hour}
-		if ($lastlogon.Minute -lt 10)
-		{
-			$minute = "0"+($lastlogon + 1)
-		} else {$minute = $lastlogon.Minute}
-		$logontime = "Igår "+$hour+":"+$minute
-	} elseif ($lastlogon.Date -eq [datetime]::Today) {
-		if (($lastlogon.Hour + 1) -lt 10)
-		{
-			$hour = "0"+($lastlogon.Hour + 1)
-		} else {$hour = $lastlogon.Hour}
-		if ($lastlogon.Minute -lt 10)
-		{
-			$minute = "0"+($lastlogon.Minute + 1)
-		} else {$minute = $lastlogon.Minute}
-		$logontime = "Idag "+$hour+":"+$minute
-	} else {
-		$logontime = $lastlogon.DateTime
-	}
-	return $logontime
-}
 
 function Confirm-SD_AnvändareKontoStatus
 {
@@ -232,7 +189,7 @@ function Confirm-SD_AnvändareKontoStatus
 	{
 		Write-Host "Inga inloggningar registrerade"
 	} else {
-		$logon = GetLastLogon -logons $successfullAzureLoggins
+		$logon = findlastlogon -logons $successfullAzureLoggins
 		Write-Host $logon -Foreground Cyan
 	}
 
@@ -241,7 +198,7 @@ function Confirm-SD_AnvändareKontoStatus
 	{
 		Write-Host "Inga inloggningar registrerade"
 	} else {
-		$logon = GetLastLogon -logons $successfullTeamsLoggins
+		$logon = findlastlogon -logons $successfullTeamsLoggins
 		Write-Host $logon -Foreground Cyan
 	}
 	#endregion
@@ -258,4 +215,47 @@ function Confirm-SD_AnvändareKontoStatus
 		Write-Host "Inga enheter registrerade i Azure"
 	}
 	#endregion
+}
+
+function findlastlogon
+{
+	param(
+		$logons
+	)
+
+	$lastlogon = ($logons[0].AuditData | ConvertFrom-Json).CreationTime
+
+	foreach($logon in $logons) {
+		if (($logon.AuditData | ConvertFrom-Json).CreationTime -gt $lastlogon)
+		{
+			$lastlogon = ($logon.AuditData | ConvertFrom-Json).CreationTime
+		}
+	}
+
+	$lastlogon = [datetime]::Parse($lastlogon).ToUniversalTime()
+	if ($lastlogon.Date -eq [datetime]::Today.AddDays(-1))
+	{
+		if (($lastlogon.Hour + 1) -lt 10)
+		{
+			$hour = "0"+($lastlogon.Hour + 1)
+		} else {$hour = $lastlogon.Hour}
+		if ($lastlogon.Minute -lt 10)
+		{
+			$minute = "0"+($lastlogon + 1)
+		} else {$minute = $lastlogon.Minute}
+		$logontime = "Igår "+$hour+":"+$minute
+	} elseif ($lastlogon.Date -eq [datetime]::Today) {
+		if (($lastlogon.Hour + 1) -lt 10)
+		{
+			$hour = "0"+($lastlogon.Hour + 1)
+		} else {$hour = $lastlogon.Hour}
+		if ($lastlogon.Minute -lt 10)
+		{
+			$minute = "0"+($lastlogon.Minute + 1)
+		} else {$minute = $lastlogon.Minute}
+		$logontime = "Idag "+$hour+":"+$minute
+	} else {
+		$logontime = $lastlogon.DateTime
+	}
+	return $logontime
 }

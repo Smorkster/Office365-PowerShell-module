@@ -1,10 +1,10 @@
-<#
+﻿<#
 .Synopsis
 	Exporterar medlemmar från flera distributionlistor till en Excel-fil
 .Description
 	Läser in distributionslistor från en Excel-fil, angiven som parameter, och hämtar alla användare i de distributionlistorna. De läggs sedan in i en ny Excel-fil, en distributionslista per Excel-blad och sparas på H:.
 .Parameter InputFile
-	CSV-fil med de distributionlistor där medlemmar ska hämtas ifrån
+	CSV-fil med de distributionlistor där medlemmar ska hämtas ifrån. Varje namn på distributionslista ska finnas på enskilda rader.
 .Description
 	Läser in listan med distributionlistor från InputFile, hämtar varje distributionslista och lägger det som ett eget blad i angiven Excel-fil med information om namn, SMTP-adress, ägare och medlemmar
 #>
@@ -22,7 +22,8 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	$excelWorkbook = $excel.Workbooks.Add()
 	#endregion
 	  
-	#Get all Distribution Groups from Office 365  
+	#Get all Distribution Groups from Office 365
+	$notFound = @()
 	if ($InputFile.EndsWith("csv"))
 	{
 		$objDistributionGroups = Get-Content $InputFile
@@ -34,14 +35,16 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 	Write-Host "Hittade"$objDistributionGroups.Count"distributionlistor"
 
 	#Iterate through all groups, one at a time
-	foreach ($item in $objDistributionGroups)  
+	foreach ($item in $objDistributionGroups)
 	{
+		Write-Host $count "- " -NoNewline
 		#Get members of this group
-		if ( $objDistributionGroup = Get-DistributionGroup -Identity $item )
+		try
 		{
+			$objDistributionGroup = Get-DistributionGroup -Identity $item -ErrorAction Stop
 			$objDGMembers = Get-DistributionGroupMember -Identity $objDistributionGroup.DisplayName -ResultSize Unlimited | sort Name
 
-			Write-Host $count "- $($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
+			Write-Host "$($objDistributionGroup.DisplayName) ($($objDGMembers.Count) medlemmar)"
 
 			#region Create worksheet
 			if ($count -eq 1)
@@ -114,17 +117,36 @@ function Get-SD_DistExporteraFrånFleraTillExcel
 				$excelTempsheet.Cells.Item($row, 2).PasteSpecial() | Out-Null
 				$excelRange = $excelTempsheet.UsedRange
 				$excelRange.EntireColumn.AutoFit() | Out-Null
-				$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow,1),$excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
+				$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item($startTableRow, 1), $excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count, 2)), 0, 1) | Out-Null
 			}
 			#endregion Add Members
-
-			$count = $count+1
-		} else {
-			Write-Host "Ingen distributionslista med namn" -NoNewline
+		} catch {
+			Write-Host "Ingen distributionslista med namn " -NoNewline
 			Write-Host $item -NoNewline -Foreground Cyan
 			Write-Host " hittades"
+			$notFound += $item
 		}
+		$count = $count+1
 	}
+
+	if ($notFound.Count -gt 0)
+	{
+		$excelTempsheet = $excelWorkbook.Worksheets.Add()
+		$excelTempsheet.Name = "Ej hittade"
+		$row = 2
+		$excelTempsheet.Cells.Item($row, 1) = "Dessa distributionlistor kunde inte hittas"
+		$excelTempsheet.Cells.Item($row, 1).Font.Bold = $true
+		$row++
+		foreach ($name in $notFound)
+		{
+			$excelTempsheet.Cells.Item($row, 1) = $name
+			$row++
+		}
+		$excelRange = $excelTempsheet.UsedRange
+		$excelRange.EntireColumn.AutoFit() | Out-Null
+		$excelTempsheet.ListObjects.Add(1, $excelTempsheet.Range($excelTempsheet.Cells.Item(2, 1), $excelTempsheet.Cells.Item($excelTempsheet.usedrange.rows.count + 1, 1)), 0, 1) | Out-Null
+	}
+
 	$excelWorkbook.SaveAs("H:\Distributionslistor.xlsx")
 	$excelWorkbook.Close()
 	$excel.Quit()

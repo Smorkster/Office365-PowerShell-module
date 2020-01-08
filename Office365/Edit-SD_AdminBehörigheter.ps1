@@ -18,6 +18,7 @@
 	Edit-SD_AdminBehörigheter -Rensa
 	Läser igenom fil med lista för alla konton där behörighet lagts, och tar bort behörigheten
 #>
+
 function Edit-SD_AdminBehörigheter
 {
 	param(
@@ -88,4 +89,3 @@ function Edit-SD_AdminBehörigheter
 		}
 	}
 }
-

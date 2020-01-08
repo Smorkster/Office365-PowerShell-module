@@ -1,7 +1,16 @@
-﻿2019-12-03
+﻿2020-01-07
+**********
+Rättade changelog. Get-SD_AnvändareGruppmedlemskap kan visa enbart Teams-grupper, inte Confirm-SD_AnvändareMedlemIAzureGrupp.
+PowerShell-Modul - Förenklade listningen av tillgängliga skript
+Confirm-SD_AnvändareKontoStatus - Flyttat hjälpfunktion för att få dokumentationen att fungera
+Get-SD_DistExporteraFrånFleraTillExcel - Förtydligade dokumentationen / Listar nu icke funna distributionslistor i eget blad
+Show-SD_Changelog - Sorterar nu output vid utskrift för changedatum / La till ny rad för output av changes för skript / Ny hantering av titelutskrift per kategori / Rättade utskriften för visning av senaste change / Listar nu inte generell information som en skriptchange / Ny design för utskrift för ChangeDatum
+Update-SD_DistErsättAllaMedlemmar - La till felhantering vid skapande av kontakt / Testar nu även ifall mail existerar som distributionslista / Skriver inte längre ut info att konto har skapats
+
+2019-12-03
 **********
 Confirm-SD_AnvändareKontoStatus - Utökade till att visa senaste Teams-inloggningen
-Confirm-SD_AnvändareMedlemIAzureGrupp - Hittar nu grupper korrekt / Lagt till parameter för att enbart visa Teams-grupper
+Confirm-SD_AnvändareMedlemIAzureGrupp - Hittar nu grupper korrekt
 Sync-SD_RumAzureTillExchange - Rättade utskriften av Write-Progress
 
 2019-11-27
@@ -99,7 +108,7 @@ Update-SD_Distributionslista - Tog bort onödiga kontroller / Rättat dokumentat
 
 2019-06-17
 **********
-ServicedeskPowerShell-Modul - Skapar nu lista över kommandotyper / Bröt ut Show-SD_Meny till eget skript
+PowerShell-Modul - Skapar nu lista över kommandotyper / Bröt ut Show-SD_Meny till eget skript
 Add-SD_AnvändareAutosvar - Korrigerade progressbar
 Add-SD_AnvändareTillO365MigPilot - La till meddelande när det är klart / La till exception-kontroll om medlemskap finns
 Add-SD_RumBokaEnAnvändare - La till meddelande när det är klart
@@ -117,7 +126,7 @@ Update-SD_Distributionslista - Kontrollerar nu även mailadress mot kontakter / 
 
 2019-06-03
 **********
-ServicedeskPowerShell-Modul - Fyller nu upp nya changelog variabeln / Skriver nu ut version vid import
+PowerShell-Modul - Fyller nu upp nya changelog variabeln / Skriver nu ut version vid import
 Starta PowerShell-Modul - Uppdaterat text vid start / Lagt till dokumentation
 Add-SD_RumBokaEnAnvändare - Korrigerat hantering av parametrar
 Confirm-SD_AnvändareKontoStatus - Hanterar nu problem att nå AD-server
